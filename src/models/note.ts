@@ -32,3 +32,9 @@ const NoteSchema = new Schema({
 });
 
 export const Note = model<NoteInterface>('Note', NoteSchema);
+
+const note = new Note({
+  title: 'Red note',
+  body: 'This is a red note',
+  color: 'red',
+});

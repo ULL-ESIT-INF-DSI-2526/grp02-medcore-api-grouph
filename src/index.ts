@@ -1,10 +1,10 @@
 import express from 'express';
-import './db/mongoose';
-import {postRouter} from './routers/post';
-import {getRouter} from './routers/get';
-import {patchRouter} from './routers/patch';
-import {deleteRouter} from './routers/delete';
-import {defaultRouter} from './routers/default';
+import './db/mongoose.js';
+import {postRouter} from './routers/post.js';
+import {getRouter} from './routers/get.js';
+import {patchRouter} from './routers/patch.js';
+import {deleteRouter} from './routers/delete.js';
+import {defaultRouter} from './routers/default.js';
 
 const app = express();
 app.use(express.json());
@@ -17,5 +17,5 @@ app.use(defaultRouter);
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
-  console.log(`Server is up on port ${port}`);
+console.log(`Server is up on port ${port}`);
 });

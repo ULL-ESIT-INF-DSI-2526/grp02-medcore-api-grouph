@@ -1,5 +1,5 @@
-import * as express from 'express';
-import {Note} from '../models/note';
+import express from 'express';
+import {Note} from '../models/note.js';
 
 export const patchRouter = express.Router();
 
