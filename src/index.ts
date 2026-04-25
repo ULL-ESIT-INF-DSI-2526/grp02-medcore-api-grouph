@@ -1,4 +1,4 @@
-import * as express from 'express';
+import express from 'express';
 import './db/mongoose';
 import {postRouter} from './routers/post';
 import {getRouter} from './routers/get';
