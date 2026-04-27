@@ -1,6 +1,6 @@
 import {connect} from 'mongoose';
 
-const databaseURL = process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017/notes-app';
+const databaseURL = process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017/hospital';
 
 connect(databaseURL).then(() => {
 console.log('Connection to MongoDB server established');
