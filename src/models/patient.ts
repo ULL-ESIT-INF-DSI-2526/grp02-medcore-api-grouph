@@ -1,7 +1,7 @@
 import {Document, model, Schema} from 'mongoose';
 import validator from 'validator';
 
-export interface PatientInterface extends Document {
+export interface PatientDocumentInterface extends Document {
   name: string;
   birthDate: Date;
   identificationNumber: string;
@@ -15,7 +15,6 @@ export interface PatientInterface extends Document {
   knownAllergies: string[];
   bloodType:  'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
   status: 'Activo' | 'Baja temporal' | 'Fallecido';
-
 }
 
 const PatientSchema: Schema = new Schema({
@@ -39,7 +38,12 @@ const PatientSchema: Schema = new Schema({
     type: String,
     required: true,
     unique: true, 
-    trim: true
+    trim: true,
+    validate: (value:string) => {
+      if(validator.isIdentityCard(value, 'ES')) {
+        throw new Error('El número de identificación no es válido');
+      }
+    }
   },
 
   socialSecurityNumber: {
@@ -52,7 +56,7 @@ const PatientSchema: Schema = new Schema({
   gender: {
     type: String, 
     required: true, 
-    enum: ['Masculino', 'Femenino', 'Otro']
+    enum: ['Masculino', 'Femenino']
   },
 
   contactInformation:{
@@ -61,8 +65,8 @@ const PatientSchema: Schema = new Schema({
       required: true, 
       trim: true,
       validate(value: number){
-        if (value.toString().length !== 9) {
-          throw new Error('El número de teléfono debe tener 9 dígitos');
+        if (validator.isMobilePhone(value.toString(), 'es-ES')) {
+          throw new Error('El número de teléfono no es válido');
         }
       }
     },
@@ -102,4 +106,4 @@ const PatientSchema: Schema = new Schema({
   }
 });
 
-export const Patient = model<PatientInterface>('Patient', PatientSchema);
+export const Patient = model<PatientDocumentInterface>('Patient', PatientSchema);

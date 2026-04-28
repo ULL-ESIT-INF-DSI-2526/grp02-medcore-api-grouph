@@ -1,7 +1,7 @@
 import { Document, Schema, model } from 'mongoose';
 import { Dose } from '../interfaces/Dose.js';
 
-interface MedicationDocumentInterface extends Document{
+export interface MedicationDocumentInterface extends Document {
   comercialAndDCIName: string,
   nationalCode: string,
   pharmaceuticalForm: 'Comprimido' | 'Cápsula' | 'Solución Oral' | 'Solución Inyectable' | 'Pomada' | 'Parche' | 'Transdérmico' | 'Inhalador' | 'Otras',

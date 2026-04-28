@@ -1,10 +1,4 @@
-import express from 'express';
-import './db/mongoose.js';
-import { defaultRouter } from './routers/default.js';
-
-const app = express();
-app.use(express.json());
-app.use(defaultRouter);
+import { app } from "./app.js";
 
 const port = process.env.PORT || 3000;
 

@@ -1,9 +1,8 @@
 import { Document, Schema, model } from 'mongoose';
 import { ContactInfo } from '../interfaces/ContactInfo.js';
 import validator from 'validator';
-// Falta importar de records
 
-interface StaffDocumentInterface  extends Document {
+export interface StaffDocumentInterface  extends Document {
   name: string,
   medicalNumber: number,
   specialty: 'Medicina General' | 'Cardiología' | 'Traumatología' | 'Pediatría' | 'Oncología' | 'Urgencias',
@@ -13,7 +12,6 @@ interface StaffDocumentInterface  extends Document {
   yearsExperience: number,
   contactInfo: ContactInfo,
   status: 'Activo' | 'Inactivo',
-  //record: RecordDocumentInterface,
 }
 
 const StaffSchema = new Schema<StaffDocumentInterface>({
@@ -96,11 +94,6 @@ const StaffSchema = new Schema<StaffDocumentInterface>({
     required: true,
     enum: ['Activo', 'Inactivo']
   }
-  /*record: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
-  }*/
 });
 
 export const Staff = model<StaffDocumentInterface>('Staff', StaffSchema);
