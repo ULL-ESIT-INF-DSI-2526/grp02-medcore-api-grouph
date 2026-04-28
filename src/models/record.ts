@@ -105,4 +105,4 @@ const RecordSchema = new Schema<RecordDocumentInterface>({
   }
 })
 
-export const RecordModel = model<RecordDocumentInterface>('Record', RecordSchema);
+export const Record = model<RecordDocumentInterface>('Record', RecordSchema);

@@ -2,7 +2,8 @@ import { Document, Schema, model } from 'mongoose';
 import { Dose } from '../interfaces/Dose.js';
 
 export interface MedicationDocumentInterface extends Document {
-  comercialAndDCIName: string,
+  comercialName: string,
+  DCIName: string,
   nationalCode: string,
   pharmaceuticalForm: 'Comprimido' | 'Cápsula' | 'Solución Oral' | 'Solución Inyectable' | 'Pomada' | 'Parche' | 'Transdérmico' | 'Inhalador' | 'Otras',
   dose: Dose,
@@ -15,14 +16,23 @@ export interface MedicationDocumentInterface extends Document {
 }
 
 const MedicationSchema = new Schema<MedicationDocumentInterface>({
-  comercialAndDCIName: {
+  comercialName: {
     type: String,
     required: true,
     trim: true,
     validate(value: string) {
-      let names: string[] = value.split(' ');  // Separamos el string en dos, para separar los dos nombres
-      if (names[0].length < 5 && names[1].length < 5) {
-        throw new Error('Los nombres del fármaco deben de tener como mínimo, 6 letras');
+      if (value.length < 3) {
+        throw new Error("El DCIName del medicamento no cumple la longitud mínima");
+      }
+    }
+  },
+  DCIName: {
+    type: String,
+    required: true,
+    trim: true,
+    validate(value: string) {
+      if (value.length < 3) {
+        throw new Error("El DCIName del medicamento no cumple la longitud mínima");
       }
     }
   },
