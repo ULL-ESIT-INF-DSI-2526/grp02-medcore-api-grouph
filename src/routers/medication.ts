@@ -43,7 +43,7 @@ medicationRouter.get("/medication/:id", async (req, res) => {
  * GET por nombres o código nacional de Medication (query)
  * Se devuelven varios medicamentos
  */
-medicationRouter.get("/medication", async (req, res) => {
+medicationRouter.get('/medication', async (req, res) => {
   // Selección de filtro de la query
   let filter: MedicationFilter;
 
@@ -86,9 +86,9 @@ medicationRouter.patch("/medication/:id", async (req, res) => {
     // Campos que permitimos actualizar
     const allowedUpdates = ["stock", "price", "expireDate"];
     const actualUpdates = Object.keys(req.body);
-    const isValidUpdate = actualUpdates.every((update) => {
+    const isValidUpdate = actualUpdates.every((update) => 
       allowedUpdates.includes(update)
-    })
+    )
 
     if (!isValidUpdate) {
       res.status(400).send({ error: "Update no permitida" });
@@ -122,7 +122,7 @@ medicationRouter.patch("/medication/:id", async (req, res) => {
  * PATCH por nombre o código nacional de Medication (query)
  * Se actualiza un solo medicamento
  */
-medicationRouter.patch("/medication/", async (req, res) => {
+medicationRouter.patch("/medication", async (req, res) => {
   if (!req.body) {
     return res.status(400).send({ error: "No se ha indicado el body de la petición" });
   } else {
@@ -130,9 +130,9 @@ medicationRouter.patch("/medication/", async (req, res) => {
     // Campos que permitimos actualizar
     const allowedUpdates = ["stock", "price", "expireDate"];
     const actualUpdates = Object.keys(req.body);
-    const isValidUpdate = actualUpdates.every((update) => {
+    const isValidUpdate = actualUpdates.every((update) => 
       allowedUpdates.includes(update)
-    })
+    )
 
     if (!isValidUpdate) {
       return res.status(400).send({ error: "Update no permitida" });
@@ -211,7 +211,7 @@ medicationRouter.delete("/medication/:id", async (req, res) => {
  * DELETE por nombre o código nacional de Medication (query)
  * Se pueden borrar varios medicamentos
  */
-medicationRouter.delete("/medication/:", async (req, res) => {
+medicationRouter.delete("/medication", async (req, res) => {
   // Selección de filtro de la query
     let filter: MedicationFilter;
 
@@ -237,7 +237,7 @@ medicationRouter.delete("/medication/:", async (req, res) => {
         status: "abierto",
       })
 
-      if (medicationInRecords) {
+      if (medicationInRecords.length > 0) {
         return res.status(412).send({ error: "No se puede borrar porque el medicamento esta en un registro con estado 'abierto'" });
       } else {
         const medication = await Medication.deleteMany(filter);

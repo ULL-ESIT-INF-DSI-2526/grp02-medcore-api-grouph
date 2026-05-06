@@ -4,13 +4,6 @@ import { ContactInfo } from '../interfaces/ContactInfo.js';
 
 export const staffRouter = express.Router();
 type StaffSearch = {name?: string, specialty?: string}
-type StaffUpdate = {specialty?: 'Medicina General' | 'Cardiología' | 'Traumatología' | 'Pediatría' | 'Oncología' | 'Urgencias',
-                    professionalCategory?: 'Medic' | 'Resident' | 'Nurse' | 'Nurse Auxiliar' | 'Head of Service',
-                    shift?: 'Mañana' | 'Tarde' | 'Noche' | 'Rotatorio',
-                    consultNumber?: number,
-                    yearsExperience?: number,
-                    contactInfo?: ContactInfo,
-                    status?: 'Activo' | 'Inactivo',}
 
 function StaffGetFilter(req :express.Request) :Promise<StaffSearch> {
   return new Promise<StaffSearch>((resolve) => {
@@ -66,7 +59,6 @@ staffRouter.get('/staff/:id', async (req, res) => {
 });
 
 staffRouter.get('/staff/', async (req, res) => {
-  let filter :StaffSearch = {}
   StaffAllowSearch(req)
   .then(() => {
     return StaffGetFilter(req) 
@@ -130,9 +122,41 @@ staffRouter.patch('/staff/', async (req, res) => {
 })
 
 staffRouter.delete('/staff/:id', async (req, res) => {
-  
+  if (!req.params.id) res.status(400).send({ error: "Se debe proporcionar un id" })
+  else {
+    Staff.findById(req.params.id)
+    .then((staff) => {
+      if (!staff) {
+        res.status(404).send({ error: "No se encontro a ningún miembro del staff con el id proporcionado" })
+        return
+      } else {
+        return Staff.findByIdAndDelete(staff.id)
+      }
+    })
+    .then((staff) => {
+      res.status(200).send(staff)
+    })
+    .catch((error) => {
+      res.status(500).send(error)
+    })
+  }
 })
 
 staffRouter.delete('/staff/', async (req, res) => {
-
+  StaffAllowSearch(req)
+  .then(() => {
+    return StaffGetFilter(req)
+  })
+  .then((filter) => {
+    return Staff.deleteMany(filter)
+  })
+  .then((deleted) => {
+    if (deleted.deletedCount === 0) 
+      res.status(404).send({ error: "No se encontro a ningún miembro del staff con los filtros proporcionados" })
+    else
+      res.status(200).send(deleted)
+  })
+  .catch((error) => {
+    res.status(error.status ?? 500).send(error.error)
+  })
 })
