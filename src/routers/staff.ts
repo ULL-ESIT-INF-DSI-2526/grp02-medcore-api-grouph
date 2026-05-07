@@ -160,3 +160,4 @@ staffRouter.delete('/staff/', async (req, res) => {
     res.status(error.status ?? 500).send(error.error)
   })
 })
+

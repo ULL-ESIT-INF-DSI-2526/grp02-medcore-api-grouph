@@ -49,6 +49,42 @@ describe('POST /staff', () => {
 
     expect((res.body)).toMatchObject(luisa)
   })
+  test('Should not create a staff member with missing fields', async () => {
+    await request(app)
+      .post('/staff')
+      .send({
+        name: 'Dra. María Gómez',
+        medicalNumber: 54321,
+        specialty: 'Pediatría',
+        professionalCategory: 'Medic',
+        shift: 'Tarde',
+        consultNumber: 3,
+        yearsExperience: 5,
+        contactInfo: {
+          email: ''
+        },
+        status: 'Activo'
+      })
+      .expect(500)
+  })
+  test('Should not create a staff member with invalid fields', async () => {
+    await request(app)
+      .post('/staff')
+      .send({
+        name: 'Dra. María Gómez',
+        medicalNumber: -54321,
+        specialty: 'Pediatría',
+        professionalCategory: 'Medic',
+        shift: 'Tarde',
+        consultNumber: 3,
+        yearsExperience: 5,
+        contactInfo: {
+          email: ''
+        },
+        status: 'Activo'
+      })
+      .expect(500)
+  })
 })
 
 describe('GET /staff', () => {

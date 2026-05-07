@@ -41,6 +41,25 @@ describe("POST /medication", () => {
       })
       .expect(201)
   })
+
+  test("Should not create a new medication", async () => {
+    await request(app)
+      .post("/medication")
+      .send({
+        comercialName: "Adventan",
+        DCIName: "Alivius Maximus",
+        nationalCode: "E102",
+        pharmaceuticalForm: "Pomada",
+        dose: { quantity: 50, unit: "ml"},
+        administrationRoute: "En la piel",
+        stock: 100,
+        price: 20.50,
+        prescription: true,
+        expireDate: "2028-02-02",
+        contraindications: ["No usar si ha tomado alcohol", "No usar si es un bebé"]
+      })
+      .expect(500)
+  })
 })
 
 describe("GET /medication", () => {
@@ -143,6 +162,14 @@ describe("PATCH /medication", () => {
         stock: 99
       })
       .expect(200);
+  })
+  test("Should not update a medication", async () => {
+    await request(app)
+      .patch('/medication?DCIName=Epinefrutus%20Maximus')
+      .send({
+        DCIName: 'Anakyn Skywalker'
+      })
+      .expect(400);
   })
 })
 
