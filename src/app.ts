@@ -1,5 +1,6 @@
 import express from 'express';
 import './db/mongoose.js';
+import { recordRouter } from './routers/record.js';
 import { defaultRouter } from './routers/default.js';
 import { medicationRouter } from './routers/medication.js';
 import { staffRouter } from './routers/staff.js';
@@ -10,4 +11,5 @@ app.use(express.json());
 app.use(medicationRouter);
 app.use(staffRouter);
 app.use(patientRouter);
+app.use(recordRouter);
 app.use(defaultRouter);

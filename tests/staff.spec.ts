@@ -20,7 +20,7 @@ const firstStaff = {
 }
 
 beforeEach(async () => {
-  await Staff.deleteMany()
+  await Staff.deleteMany({})
   await new Staff(firstStaff).save();
 })
 

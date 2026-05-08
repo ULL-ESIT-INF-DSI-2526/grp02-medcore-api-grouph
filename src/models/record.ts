@@ -6,14 +6,14 @@ import { Medication, MedicationDocumentInterface } from './medication.js'
 
 
 export interface MedicationPrescription {
-  medicationId: MedicationDocumentInterface,
+  medicationId: string,
   dose :Dose,
   posology: string,
 }
 
 const MedicationPrescriptionSchema = new Schema<MedicationPrescription>({
   medicationId: {
-    type: Schema.Types.ObjectId,
+    type: String,
     required: true,
     ref: 'Medication'
   },

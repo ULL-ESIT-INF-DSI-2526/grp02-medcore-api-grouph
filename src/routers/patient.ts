@@ -117,49 +117,33 @@ patientRouter.patch('/patients/:id', async (req, res) => {
   });
 
   patientRouter.delete('/patients/', async (req, res) => {
-    let filter: PatientFilter;
-
-    if(req.query.name) {
-      filter = { name: req.query.name as string };
-    } else if (req.query.identificationNumber) {
-      filter = { identificationNumber: req.query.identificationNumber as string };
-    } else {
-      return res.status(400).send({ error: 'Se requiere un filtro de búsqueda (name o identificationNumber)' });
+    if (!req.query.identificationNumber) {
+      return res.status(400).send({ error: 'Número de identificación del paciente es requerido' });
     }
-    try {
-      const patient = await Patient.findOne(filter);
+
+    try{
+      const patient = await Patient.findOne({identificationNumber: req.query.identificationNumber as string});
       if (!patient) {
-        return res.status(404).send({ error: 'Paciente no encontrado' });
+        return res.status(404).send({ error: 'Paciente no encontrado'});
       }
-      const hasRecords = await Record.find({ patient: patient._id });
-      if (hasRecords.length > 0) {
-        Record.deleteMany({ patient: patient._id });
-      }
-      await Patient.deleteOne({ _id: patient._id });
+      await Record.deleteMany({ pacientId: patient._id });
+      await Patient.findByIdAndDelete(patient._id);
       return res.status(200).send(patient);
     } catch (error) {
-      return res.status(500).send({ error: 'Error al eliminar el paciente' });
-    }
+      return res.status(500).send({ error: 'Error al eliminar el paciente' }); 
+    } 
   });
 
   patientRouter.delete('/patients/:id', async (req, res) => {
-    if (!req.params.id) {
-      return res.status(400).send({ error: 'ID del paciente es requerido' });
-    } else{
-      try {
-        const patient = await Record.find({ patient: req.params.id})
-        if (patient.length > 0) {
-          Record.deleteMany({ patient: req.params.id });
-        }
-        const deletedPatient = await Patient.findByIdAndDelete(req.params.id);
-        if (deletedPatient) {
-          return res.status(200).send(deletedPatient);
-        } else {
-          return res.status(404).send({ error: 'Paciente no encontrado' });
-        }
-      } catch (error) {
-        return res.status(500).send({ error: 'Error al eliminar el paciente' });
-      } 
+    try {
+      await Record.deleteMany({ pacientId: req.params.id });
+      const patient = await Patient.findByIdAndDelete(req.params.id);
+      if (!patient) {
+        return res.status(404).send({ error: 'Paciente no encontrado' });
+      }
+      return res.status(200).send(patient);
+    } catch (error) {
+      return res.status(500).send({ error: 'Error al eliminar el paciente' });
     }
   })
 

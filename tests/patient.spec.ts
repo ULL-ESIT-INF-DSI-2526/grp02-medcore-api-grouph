@@ -1,7 +1,9 @@
 import { describe, test, beforeEach, expect } from 'vitest';
 import request from "supertest";
 import { app } from '../src/app.js';
-import {Patient} from '../src/models/patient.js';
+import { Patient } from '../src/models/patient.js';
+import { Record } from '../src/models/record.js';
+import { Staff } from '../src/models/staff.js';
 
 const firstPatient = {
     name: "John Doe",
@@ -19,9 +21,37 @@ const firstPatient = {
     status: "Activo"
 };
 
+const firstStaff = {
+  name: 'Dr. Juan Pérez',
+  medicalNumber: 12349,
+  specialty: 'Cardiología',
+  professionalCategory: 'Medic',
+  shift: 'Mañana',
+  consultNumber: 5,
+  yearsExperience: 10,
+  contactInfo: {
+    email: 'drjuan@gmail.com',
+    phoneNumber: 123456789,
+    direction: 'Calle Falsa 123'
+  },
+  status: 'Activo'
+}
+
+const firstRecord = {
+  type: 'Ambulatoria',
+  startDate: new Date('2026-01-01'),
+  reason: 'Dolor torácico',
+  diagnostic: 'Seguimiento clínico',
+  status: 'abierto',
+  totalPrice: 25
+};
+
 beforeEach(async () => {
-    await Patient.deleteMany();
+    await Patient.deleteMany({});
+    await Record.deleteMany({});
+    await Staff.deleteMany({});
     await new Patient(firstPatient).save();
+    await new Staff(firstStaff).save();
 });
 
 describe("POST /patients", () => {
@@ -209,4 +239,53 @@ describe("GET /patients/:id", () => {
       .expect(400);
     })
   })
+
+  describe('DELETE /patients', () => {
+    test('should delete a patient by identification number and cascade delete its records', async () => {
+      const patient = await Patient.findOne({ identificationNumber: firstPatient.identificationNumber });
+      const staff = await Staff.findOne({ medicalNumber: firstStaff.medicalNumber });
+
+      if (!patient || !staff) throw new Error('Test fixtures were not created correctly');
+
+      await new Record({
+        ...firstRecord,
+        pacientId: patient._id,
+        doctorId: staff._id,
+      }).save();
+
+      await request(app)
+        .delete('/patients?identificationNumber=12345678A')
+        .expect(200);
+
+      const deletedPatient = await Patient.findById(patient._id);
+      const remainingRecords = await Record.find({ pacientId: patient._id });
+
+      expect(deletedPatient).toBeNull();
+      expect(remainingRecords).toHaveLength(0);
+    });
+
+    test('should delete a patient by id and cascade delete its records', async () => {
+      const patient = await Patient.findOne({ identificationNumber: firstPatient.identificationNumber });
+      const staff = await Staff.findOne({ medicalNumber: firstStaff.medicalNumber });
+
+      if (!patient || !staff) throw new Error('Test fixtures were not created correctly');
+
+      await new Record({
+        ...firstRecord,
+        pacientId: patient._id,
+        doctorId: staff._id,
+      }).save();
+
+      await request(app)
+        .delete(`/patients/${patient._id}`)
+        .expect(200);
+
+      const deletedPatient = await Patient.findById(patient._id);
+      const remainingRecords = await Record.find({ pacientId: patient._id });
+
+      expect(deletedPatient).toBeNull();
+      expect(remainingRecords).toHaveLength(0);
+    });
+  })
+  
 

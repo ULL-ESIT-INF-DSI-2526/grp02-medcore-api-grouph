@@ -43,10 +43,11 @@ async function manageMedicationPrescription(
   medicationPrescription: MedicationPrescription,
   startDate: Date
 ): Promise<boolean> {
-  const medicationId = medicationPrescription.medicationId._id.toString();
+  const medicationId = medicationPrescription.medicationId.toString();
   const dose = medicationPrescription.dose.quantity;
 
   const medication: MedicationDocumentInterface | null = await Medication.findById(medicationId);
+
   if (!medication) {
     throw new Error(`No se ha encontrado el medicamento con ID ${medicationId}`);
   }
@@ -63,8 +64,10 @@ async function manageMedicationPrescription(
     );
   }
 
-  const updated = await Medication.findOneAndUpdate(
-    { _id: medicationId, stock: medication.stock - dose }, 
+  const new_stock = medication.stock - dose;
+  const updated = await Medication.findByIdAndUpdate(medicationId,
+    { $inc:{ stock: new_stock } }, 
+    { new: true, runValidators: true }
   );
 
   if (!updated) {
@@ -75,57 +78,76 @@ async function manageMedicationPrescription(
   return true;
 }
 
-recordRouter.post('/records', async (req, res) => {
-  const dni = req.body.dni
-  const medicalNumber = req.body.medicalNumber
-  let pacientId
-  let doctorId 
-
-  /// Extraemos IDS 
-  try {
-    getIdFromMedicalNumber(medicalNumber)
-    .then((id) => {
-      doctorId = id
-    })
-    .catch((err) => {
-      res.status(400).send({ error: err })
-    })
-    getIdFromDni(dni)
-    .then((id) => {
-      pacientId = id
-    })
-    .catch((err) => {
-      res.status(400).send({ error: err })
-    })
-  } catch (error) {
-    res.status(400).send({ error: error })
+async function computeTotalPrice(prescriptions: MedicationPrescription[]): Promise<number> {
+  let result = 0
+  for (const prescription of prescriptions) {
+    const medication = await Medication.findById(prescription.medicationId)
+    if (medication)
+      result += (prescription.dose.quantity / medication.dose.quantity) * medication.price
   }
 
-  /// Checkeamos la prescripción de medicamentos
-  const medicationPrescriptions :MedicationPrescription[] = req.body.medications
-  medicationPrescriptions.forEach((medicationPrescription) => {
+  return result
+}
+
+recordRouter.get("/records/patient", async (req, res) => {
+  if (!req.query.identificationNumber) {
+    return res.status(400).send("No se ha indicado el id del paciente")
+  } else {
     try {
-      manageMedicationPrescription(medicationPrescription, req.body.startDate)
-      .catch((err) => {
-        res.status(400).send({ error: err })
-      })
+      const patient: PatientDocumentInterface | null = await Patient.findOne({ identificationNumber: req.query.identificationNumber as string });
+      if (!patient) {
+        return res.status(404).send("No se ha encontrado paciente con ese ID");
+      } else {
+        const records = await Record.find({ pacientId: patient._id })
+                                    .sort({ startDate: 1 });  // Registros más antiguos primero
+        if(records.length > 0) {
+          return res.status(200).send(records);
+        } else {
+          return res.status(404).send("No se han encontrado registros de ese paciente");
+        }
+      }
+      
     } catch (error) {
-      res.status(400).send({ error: error })
+      console.error(error)
+      return res.status(500).send(error)
     }
-  })
+  }
+})
 
-  /// Creamos el registro
-  const record = new Record({
-    ...req.body,
-    identificationNumber: pacientId,
-    medicalNumber: doctorId
-  })
 
+recordRouter.post('/records', async (req, res) => {
   try {
+    const dni = req.body.identificationNumber
+    const medicalNumber = req.body.medicalNumber
+
+    const doctorId = await getIdFromMedicalNumber(medicalNumber)
+    const pacientId = await getIdFromDni(dni)
+
+    const medicationPrescriptions: MedicationPrescription[] = req.body.medications ?? []
+
+    for (const medicationPrescription of medicationPrescriptions) {
+      await manageMedicationPrescription(
+        medicationPrescription,
+        new Date(req.body.startDate)
+      )
+    }
+
+    const totalPrice = await computeTotalPrice(medicationPrescriptions)
+
+    const record = new Record({
+      ...req.body,
+      pacientId,
+      doctorId,
+      totalPrice
+    })
+
     await record.save()
-    res.status(201).send(record);
-  } catch (err) {
-    res.status(500).send({ error: err })
+
+    return res.status(201).send(record)
+  } catch (error) {
+    return res.status(400).send({
+      error: error instanceof Error ? error.message : error
+    })
   }
 })
 
@@ -143,33 +165,34 @@ recordRouter.get("/records/:id", async (req, res) => {
   }
 })
 
-recordRouter.get("/records/patient", async (req, res) => {
-  if (!req.query.identificationNumber) {
-    res.status(400).send("No se ha indicado el id del paciente")
-  } else {
-
-    try {
-      const patient: PatientDocumentInterface | null = await Patient.findById(req.query.identificationNumber);
-
-      if (!patient) {
-        res.status(404).send("No se ha encontrado paciente con ese ID");
-      } else {
-        const patientID = patient._id;
-
-        const records = await Record.find({ identificationNumber: patientID })
-                                    .sort({ startDate: 1 });  // Registros más antiguos primero
-        if(records.length > 0) {
-          res.status(200).send(records);
-        } else {
-          res.status(404).send("No se han encontrado registros de ese paciente");
-        }
-      }
+// recordRouter.get("/records/patient", async (req, res) => {
+//   console.log(req.query.identificationNumber)
+//   console.error(req.query.identificationNumber)
+//   if (!req.query.identificationNumber) {
+//     return res.status(400).send("No se ha indicado el id del paciente")
+//   } else {
+//     try {
+//       const patient: PatientDocumentInterface | null = await Patient.findOne({ identificationNumber: req.query.identificationNumber as string });
+//       console.log(patient)
+//       console.error(patient)
+//       if (!patient) {
+//         return res.status(404).send("No se ha encontrado paciente con ese ID");
+//       } else {
+//         const records = await Record.find({ pacientId: patient._id })
+//                                     .sort({ startDate: 1 });  // Registros más antiguos primero
+//         if(records.length > 0) {
+//           return res.status(200).send(records);
+//         } else {
+//           return res.status(404).send("No se han encontrado registros de ese paciente");
+//         }
+//       }
       
-    } catch (error) {
-      res.status(500).send(error)
-    }
-  }
-})
+//     } catch (error) {
+//       console.error(error)
+//       return res.status(500).send(error)
+//     }
+//   }
+// })
 
 recordRouter.get("/records", async (req, res) => {
   const { startDate, endDate, type } = req.query;
@@ -235,11 +258,21 @@ recordRouter.delete("/records/:id", async (req, res) => {
     const medications = record.medications
     /// Miramos si el registro tiene medicamentos prescritos para devolver el stock
     if (medications) {
-      medications.forEach((medication) => {
-        const medicationId = medication.medicationId._id.toString();
-        const dose = medication.dose.quantity;
+      medications.forEach((prescription) => {
+        const medicationId = prescription.medicationId.toString();
+        const dose = prescription.dose.quantity;
+        Medication.findById(medicationId)
+        .then((medication) => {
+          if (!medication) {
+            res.status(500).send({ error: `No se ha encontrado el medicamento con ID ${medicationId}` })
+          } else {
+            Medication.findByIdAndUpdate(medicationId, {stock: medication.stock as number + dose})
+            .catch((err) => {
+              res.status(500).send({ error: err })
+            })
+          }
 
-        Medication.findByIdAndUpdate(medicationId, {stock: medication.medicationId.stock + dose})
+        })
         .catch((err) => {
           res.status(500).send({ error: err })
         })
