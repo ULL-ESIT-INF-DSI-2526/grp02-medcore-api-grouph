@@ -89,30 +89,6 @@ async function computeTotalPrice(prescriptions: MedicationPrescription[]): Promi
   return result
 }
 
-recordRouter.get("/records/patient", async (req, res) => {
-  if (!req.query.identificationNumber) {
-    return res.status(400).send("No se ha indicado el id del paciente")
-  } else {
-    try {
-      const patient: PatientDocumentInterface | null = await Patient.findOne({ identificationNumber: req.query.identificationNumber as string });
-      if (!patient) {
-        return res.status(404).send("No se ha encontrado paciente con ese ID");
-      } else {
-        const records = await Record.find({ pacientId: patient._id })
-                                    .sort({ startDate: 1 });  // Registros más antiguos primero
-        if(records.length > 0) {
-          return res.status(200).send(records);
-        } else {
-          return res.status(404).send("No se han encontrado registros de ese paciente");
-        }
-      }
-      
-    } catch (error) {
-      console.error(error)
-      return res.status(500).send(error)
-    }
-  }
-})
 
 
 recordRouter.post('/records', async (req, res) => {
@@ -148,6 +124,32 @@ recordRouter.post('/records', async (req, res) => {
     return res.status(400).send({
       error: error instanceof Error ? error.message : error
     })
+  }
+})
+
+
+recordRouter.get("/records/patient", async (req, res) => {
+  if (!req.query.identificationNumber) {
+    return res.status(400).send("No se ha indicado el id del paciente")
+  } else {
+    try {
+      const patient: PatientDocumentInterface | null = await Patient.findOne({ identificationNumber: req.query.identificationNumber as string });
+      if (!patient) {
+        return res.status(404).send("No se ha encontrado paciente con ese ID");
+      } else {
+        const records = await Record.find({ pacientId: patient._id })
+                                    .sort({ startDate: 1 });  // Registros más antiguos primero
+        if(records.length > 0) {
+          return res.status(200).send(records);
+        } else {
+          return res.status(404).send("No se han encontrado registros de ese paciente");
+        }
+      }
+      
+    } catch (error) {
+      console.error(error)
+      return res.status(500).send(error)
+    }
   }
 })
 
