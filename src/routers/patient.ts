@@ -15,15 +15,10 @@ patientRouter.post('/patients', async (req, res) => {
 });
 
 patientRouter.get('/patients', async (req, res) => {
-    let filter: PatientFilter;
+    let filter: PatientFilter = {};
 
-    if (req.query.name) {
-      filter = { name: req.query.name as string };
-    } else if (req.query.identificationNumber) {
-      filter = { identificationNumber: req.query.identificationNumber as string };
-    } else {
-      return res.status(400).send({ error: 'Se requiere un filtro de búsqueda (name o identificationNumber)' });
-    }
+    if (req.query.name) filter.name = req.query.name as string;
+    if (req.query.identificationNumber) filter.identificationNumber = req.query.identificationNumber as string;
 
     try{
       const patient = await Patient.find(filter);
@@ -58,20 +53,15 @@ patientRouter.get('/patients/:id', async (req, res) => {
       const allowedUpdates = ["contactInformation", "knownAllergies", "status"];
       const actualUpdates = Object.keys(req.body);
       const isValidUpdate = actualUpdates.every((update) => {
-        allowedUpdates.includes(update)
+      return allowedUpdates.includes(update)
       })
    if (!isValidUpdate) {
      return res.status(400).send({ error: 'Actualización no válida' });
    } else {
-     let filter: PatientFilter;
+     let filter: PatientFilter = {};
 
-      if (req.query.name) {
-        filter = { name: req.query.name as string };
-      } else if (req.query.identificationNumber) {
-        filter = { identificationNumber: req.query.identificationNumber as string };
-      } else {
-        return res.status(400).send({ error: 'Se requiere un filtro de búsqueda (name o identificationNumber)' });
-      }
+      if (req.query.name) filter.name = req.query.name as string;
+      if (req.query.identificationNumber) filter.identificationNumber = req.query.identificationNumber as string;
 
       try {
         const patient = await Patient.findOneAndUpdate(
@@ -99,8 +89,8 @@ patientRouter.patch('/patients/:id', async (req, res) => {
   } else {
       const allowedUpdates = ["contactInformation", "knownAllergies", "status"];
       const actualUpdates = Object.keys(req.body);
-      const isValidUpdate = actualUpdates.every((update) => { 
-        allowedUpdates.includes(update)
+      const isValidUpdate = actualUpdates.every((update) =>  {
+        return allowedUpdates.includes(update)
       });
 
       if (!isValidUpdate) {

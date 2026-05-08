@@ -8,7 +8,7 @@ export interface PatientDocumentInterface extends Document {
   socialSecurityNumber: string;
   gender: 'Masculino' | 'Femenino' | 'Otro';
   contactInformation: {
-    phone: string;
+    phone: number;
     email: string;
     address: string;
   };
@@ -56,19 +56,19 @@ const PatientSchema: Schema = new Schema({
   gender: {
     type: String, 
     required: true, 
-    enum: ['Masculino', 'Femenino']
+    enum: ['Masculino', 'Femenino', 'Otro']
   },
 
   contactInformation:{
     phone: {
-      type: String, 
+      type: Number, 
       required: true, 
       trim: true,
-      validate(value: number){
-        if (validator.isMobilePhone(value.toString(), 'es-ES')) {
-          throw new Error('El número de teléfono no es válido');
-        }
-      }
+      // validate(value: number){
+      //   if (validator.isMobilePhone(value.toString(), 'es-ES')) {
+      //     throw new Error('El número de teléfono no es válido');
+      //   }
+      // }
     },
     email: {
       type: String, 

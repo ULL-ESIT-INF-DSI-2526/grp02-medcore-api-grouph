@@ -1,3 +1,3 @@
-export type PatientFilter = 
-  | { name: string }
-  | { identificationNumber: string }
+export type PatientFilter = {
+  name?: string,
+  identificationNumber?: string }

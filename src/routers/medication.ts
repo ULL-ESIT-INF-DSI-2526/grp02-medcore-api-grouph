@@ -45,18 +45,12 @@ medicationRouter.get("/medication/:id", async (req, res) => {
  */
 medicationRouter.get('/medication', async (req, res) => {
   // Selección de filtro de la query
-  let filter: MedicationFilter;
+  let filter: MedicationFilter = {};
 
-  if(req.query.comercialName) {
-    filter = { comercialName: req.query.comercialName as string};
-  } else if (req.query.DCIName) {
-    filter = { DCIName: req.query.DCIName as string};
-  } else if (req.query.nationalCode) {
-    filter = { nationalCode: req.query.nationalCode as string};
-  } else {
-    return res.status(400).send({ error: "No se a proporcioando un numbre o el código nacional"});
-  }
-
+  if (req.query.comercialName) filter.comercialName = req.query.comercialName as string;
+  if (req.query.DCIName) filter.DCIName = req.query.DCIName as string;
+  if (req.query.nationalCode) filter.nationalCode = req.query.nationalCode as string;
+ 
   // Se busca el medicamento
   try {
     const medication = await Medication.find(filter);
@@ -138,18 +132,12 @@ medicationRouter.patch("/medication", async (req, res) => {
       return res.status(400).send({ error: "Update no permitida" });
     } else {
 
-      // Selección de filtro de la query
-      let filter: MedicationFilter;
+  // Selección de filtro de la query
+  let filter: MedicationFilter = {};
 
-      if(req.query.comercialName) {
-        filter = { comercialName: req.query.comercialName as string};
-      } else if (req.query.DCIName) {
-        filter = { DCIName: req.query.DCIName as string};
-      } else if (req.query.nationalCode) {
-        filter = { nationalCode: req.query.nationalCode as string};
-      } else {
-        return res.status(400).send({ error: "No se a proporcioando un numbre o el código nacional"});
-      }
+  if (req.query.comercialName) filter.comercialName = req.query.comercialName as string;
+  if (req.query.DCIName) filter.DCIName = req.query.DCIName as string;
+  if (req.query.nationalCode) filter.nationalCode = req.query.nationalCode as string;
 
       // Se busca el medicamento
       try {
@@ -212,18 +200,12 @@ medicationRouter.delete("/medication/:id", async (req, res) => {
  * Se pueden borrar varios medicamentos
  */
 medicationRouter.delete("/medication", async (req, res) => {
-  // Selección de filtro de la query
-    let filter: MedicationFilter;
+    // Selección de filtro de la query
+    let filter: MedicationFilter = {};
 
-    if(req.query.comercialName) {
-      filter = { comercialName: req.query.comercialName as string};
-    } else if (req.query.DCIName) {
-      filter = { DCIName: req.query.DCIName as string};
-    } else if (req.query.nationalCode) {
-      filter = { nationalCode: req.query.nationalCode as string};
-    } else {
-      return res.status(400).send({ error: "No se a proporcioando un numbre o el código nacional"});
-    }
+    if (req.query.comercialName) filter.comercialName = req.query.comercialName as string;
+    if (req.query.DCIName) filter.DCIName = req.query.DCIName as string;
+    if (req.query.nationalCode) filter.nationalCode = req.query.nationalCode as string;
     try {
 
       // Buscamos los ids de los medicamentos

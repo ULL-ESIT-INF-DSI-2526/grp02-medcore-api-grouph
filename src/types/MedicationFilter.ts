@@ -1,4 +1,5 @@
-export type MedicationFilter = 
-  | { comercialName: string }
-  | { DCIName: string } 
-  | { nationalCode: string}
+export type MedicationFilter = { 
+  comercialName?: string,
+  DCIName?: string,
+  nationalCode?: string
+}

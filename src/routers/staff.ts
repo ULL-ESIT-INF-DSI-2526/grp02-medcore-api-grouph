@@ -26,6 +26,8 @@ function StaffAllowUpdate(req :express.Request) :Promise<boolean> {
 
 function StaffAllowSearch(req :express.Request) :Promise<boolean> {
   return new Promise<boolean>((resolve, rejected) => {
+    if (!req.query) resolve(true)
+      
     const allowedQueries = ['name', 'specialty']
     for (const query in req.query) {
       if (!allowedQueries.includes(query)) 

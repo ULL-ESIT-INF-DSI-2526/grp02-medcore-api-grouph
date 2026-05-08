@@ -65,7 +65,7 @@ describe("POST /medication", () => {
 describe("GET /medication", () => {
   test("Should succesfully get a medication", async () => {
     await request(app)
-      .get('/medication?comercialName=Epinefrina&DCIName=Epinefrutus%20Maximus&nationalCode=E102')
+      .get('/medication?comercialName=Epinefrina&DCIName=Epinefrutus%20Maximus&nationalCode=E101')
       .expect(200);
   })
   test("Should succesfully get a medication", async () => {
@@ -83,6 +83,11 @@ describe("GET /medication", () => {
       .get('/medication?DCIName=Epinefrutus%20Maximus')
       .expect(200);
   })
+  test("Should succesfully get all medication", async () => {
+    await request(app)
+      .get('/medication')
+      .expect(200);
+  })
 })
 
 describe("GET /medication/:id", () => {
@@ -91,6 +96,7 @@ describe("GET /medication/:id", () => {
                 .get('/medication?comercialName=Epinefrina')
       
     await request(app)
+    //@ts-ignore
       .get(`/medication/${med._body[0]._id}`)
       .expect(200)
   })
@@ -125,6 +131,7 @@ describe("DELETE /medication/:id", () => {
                 .get('/medication?comercialName=Epinefrina')
       
     await request(app)
+      //@ts-ignore
       .delete(`/medication/${med._body[0]._id}`)
       .expect(200)
   })
@@ -179,6 +186,7 @@ describe("PATCH /medication/:id", () => {
                 .get('/medication?comercialName=Epinefrina')
     
     await request(app)
+    //@ts-ignore
       .patch(`/medication/${med._body[0]._id}`)
       .send({
         stock: 99
