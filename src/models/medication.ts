@@ -2,7 +2,10 @@ import { Document, Schema, model } from 'mongoose';
 import { Dose } from '../interfaces/Dose.js';
 
 /**
- * Interfaz de Medication para el Schema de MongoDB
+ * Interfaces y Schemas para la entidad Medication
+ */
+/**
+ * MedicationDocumentInterface define la estructura de un documento de medicamento en la base de datos, incluyendo campos como nombre comercial, DCI, código nacional, forma farmacéutica, dosis, vía de administración, stock, precio, si requiere receta, fecha de caducidad y contraindicaciones.
  */
 export interface MedicationDocumentInterface extends Document {
   comercialName: string,
@@ -18,8 +21,9 @@ export interface MedicationDocumentInterface extends Document {
   contraindications: string[]
 }
 
+
 /**
- * Schema de Medication
+ * MedicationSchema define la estructura del documento de medicamento en la base de datos, incluyendo validaciones para cada campo, como la longitud mínima para el nombre comercial y el DCI, la unicidad del código nacional, los valores permitidos para la forma farmacéutica, la vía de administración y la unidad de dosis, y validaciones para el stock y el precio para asegurar que no sean negativos.
  */
 const MedicationSchema = new Schema<MedicationDocumentInterface>({
   comercialName: {

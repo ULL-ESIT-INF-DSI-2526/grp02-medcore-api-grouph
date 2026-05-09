@@ -6,33 +6,12 @@ import { medicationRouter } from './routers/medication.js';
 import { staffRouter } from './routers/staff.js';
 import { patientRouter } from './routers/patient.js';
 import swaggerUi from 'swagger-ui-express';
-import swaggerJsDoc from 'swagger-jsdoc';
+import swaggerJsDoc, {Options} from 'swagger-jsdoc';
+import { swaggerSpec } from './config/swagger.js';
 
 export const app = express();
 app.use(express.json());
-
-const swaggerOptions = {
-  definition: {
-    openapi: '3.0.0', 
-    info: {
-      title: 'MedCore API',
-      version: '1.0.0',
-      description: 'API REST para la gestion del sistema de información del Hospital Universitario de la Costa'
-    },
-    servers: [
-      {
-        url: process.env.SWAGGER_SERVER
-      },
-      {
-        url: 'http://localhost:3000'
-      }
-    ],
-  },
-  apis: ['./src/routers/*.ts'],
-};
-
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 /**
  * Rutas de la API

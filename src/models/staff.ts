@@ -2,6 +2,13 @@ import { Document, Schema, model } from 'mongoose';
 import { ContactInfo } from '../interfaces/ContactInfo.js';
 import validator from 'validator';
 
+/**
+ * Interfaces y Schemas para la entidad Staff
+ */
+
+/**
+ * StaffDocumentInterface define la estructura de un documento de personal médico en la base de datos, incluyendo campos como nombre, número de colegiado, especialidad, categoría profesional, turno, número de consulta, años de experiencia, información de contacto y estado del personal.
+ */
 export interface StaffDocumentInterface  extends Document {
   name: string,
   medicalNumber: number,
@@ -14,6 +21,9 @@ export interface StaffDocumentInterface  extends Document {
   status: 'Activo' | 'Inactivo',
 }
 
+/**
+ * StaffSchema define la estructura del documento de personal médico en la base de datos, incluyendo validaciones para cada campo, como la validación de que el número de colegiado no sea negativo, la restricción de los valores permitidos para la especialidad, categoría profesional, turno y estado del personal, y validaciones para el número de teléfono y el correo electrónico en la información de contacto.
+ */
 const StaffSchema = new Schema<StaffDocumentInterface>({
   name: {
     type: String,
@@ -96,4 +106,7 @@ const StaffSchema = new Schema<StaffDocumentInterface>({
   }
 });
 
+/**
+ * Staff es el modelo de Mongoose para la entidad personal médico, basado en el esquema StaffSchema y la interfaz StaffDocumentInterface, que se utiliza para interactuar con la colección de personal médico en la base de datos, permitiendo realizar operaciones como crear, leer, actualizar y eliminar documentos de personal médico.
+ */
 export const Staff = model<StaffDocumentInterface>('Staff', StaffSchema);
