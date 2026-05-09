@@ -19,6 +19,7 @@ export const patientRouter = express.Router();
  *         - gender
  *         - contactInformation
  *         - knownAllergies
+ *         - bloodType
  *         - status
  *       properties:
  *         name:
@@ -36,6 +37,7 @@ export const patientRouter = express.Router();
  *         gender:
  *           type: string
  *           description: género del paciente
+ *           enum: [Masculino, Femenino, Otro]
  *         contactInformation:
  *           type: string
  *           description: Información de contacto del paciente (teléfono, correo electrónico, etc.)
@@ -44,9 +46,13 @@ export const patientRouter = express.Router();
  *           items:
  *             type: string
  *           description: Lista de alergias conocidas del paciente
+ *         bloodType:
+ *           type: string
+ *           description: Tipo de sangre del paciente
+ *           enum: [A+, A-, B+, B-, AB+, AB-, O+, O-]
  *         status:
  *           type: string
- *           enum: [activo, inactivo]
+ *           enum: [activo, Baja temporal, Fallecido]
  *           description: Estado del paciente en el sistema (activo o inactivo)
  */
 

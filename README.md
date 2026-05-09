@@ -49,7 +49,7 @@ Puede acceder a la docomentacion interactiva a través del enlace: [MedCoreAPIDo
 
 ---
 
-### Medication (ojo: en el código es singular `/medication`)
+### Medication
 | Método | Ruta            | Query / Params | Descripción |
 | ------ | --------------- | -------------- | ----------- |
 | POST   | /medication     | —              | Crear medicamento |

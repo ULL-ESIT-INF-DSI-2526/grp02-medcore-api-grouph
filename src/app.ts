@@ -21,14 +21,9 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
-        description: 'Servidor local',
+        url: 'process.env.SWAGGER_SERVER'
       },
-      {
-        url: 'https://medcore-api-grouph.onrender.com',
-        description: 'Servidor en Render',
-      },
-    ]
+    ],
   },
   apis: ['./src/routers/*.ts'],
 };
