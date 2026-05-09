@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "test": "env-cmd -f ./config/test.env vitest run --no-file-parallelism",
     "start": "node dist/index.js",
-    "coverage": "vitest run --coverage --coverage.include src/**/*.ts",
+    "coverage": "env-cmd -f ./config/test.env vitest run --no-file-parallelism --coverage --coverage.include \"src/**/*.ts\"",
     "doc": "rm -rf docs && typedoc",
     "dev": "tsc-watch --onSuccess \"env-cmd -f ./config/dev.env node dist/index.js\""
   },
