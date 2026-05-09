@@ -123,6 +123,7 @@ describe('PATCH /staff/:id', () => {
   test('Should succesfully update a staff member', async () => {
     const staff = await request(app).get('/staff?name=Dr. Juan Pérez').expect(200);
     await request(app)
+    //@ts-ignore
       .patch(`/staff/${staff._body[0]._id}`)
       .send({
         shift: 'Noche',
@@ -133,6 +134,7 @@ describe('PATCH /staff/:id', () => {
   test('Should return 400 if update is not allowed', async () => {
     const staff = await request(app).get('/staff?name=Dr. Juan Pérez').expect(200);
     await request(app)
+    //@ts-ignore
       .patch(`/staff/${staff._body[0]._id}`)
       .send({
         name: 'Dr. Juan Pérez Modificado'
@@ -183,6 +185,7 @@ describe('DELETE /staff/:id', () => {
   test('Should succesfully delete a staff member', async () => {
     const staff = await request(app).get('/staff?name=Dr. Juan Pérez').expect(200);
     await request(app)
+    //@ts-ignore
       .delete(`/staff/${staff._body[0]._id}`)
       .expect(200);
 
