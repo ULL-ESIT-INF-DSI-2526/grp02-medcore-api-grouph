@@ -14,7 +14,7 @@
     "dev": "tsc-watch --onSuccess \"env-cmd -f ./config/dev.env node dist/index.js\""
   },
   "keywords": [],
-  "author": ["Eduardo Socas", "Daniel Díaz"],
+  "authors": ["Eduardo Socas", "Daniel Díaz", "Francisco Fernández"],
   "license": "ISC",
   "type": "module",
   "devDependencies": {
