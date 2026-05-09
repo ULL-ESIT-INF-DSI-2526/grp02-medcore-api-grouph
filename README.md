@@ -1,4 +1,6 @@
 # Example of REST API: MedCore
+[![CI Tests](https://github.com/ULL-ESIT-INF-DSI-2526/grp02-medcore-api-grouph/actions/workflows/ci.yml/badge.svg)](https://github.com/ULL-ESIT-INF-DSI-2526/grp02-medcore-api-grouph/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/ULL-ESIT-INF-DSI-2526/grp02-medcore-api-grouph/badge.svg?branch=main)](https://coveralls.io/github/ULL-ESIT-INF-DSI-2526/grp02-medcore-api-grouph?branch=main)
 
 ## Introducción
 Esto es una API REST destinada a gestionar el sistema de información de un hospital. Se pueden realizar operaciones CRUD para Pacientes, Personal, Medicamentos y Registros.
