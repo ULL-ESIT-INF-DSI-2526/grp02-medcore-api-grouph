@@ -2,8 +2,57 @@ import express from 'express';
 import { Patient } from '../models/patient.js';
 import { Record } from '../models/record.js';
 import { PatientFilter } from '../types/PatientFilter.js';
+
 export const patientRouter = express.Router();
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Patient:
+ *       type: object
+ *       required:
+ *         - name
+ *         - identificationNumber
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Nombre completo del paciente
+ *         identificationNumber:
+ *           type: string
+ *           description: Número de identificación del paciente (DNI, pasaporte, etc.)
+ *         contactInformation:
+ *           type: string
+ *           description: Información de contacto del paciente (teléfono, correo electrónico, etc.)
+ *         knownAllergies:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Lista de alergias conocidas del paciente
+ *         status:
+ *           type: string
+ *           enum: [activo, inactivo]
+ *           description: Estado del paciente en el sistema (activo o inactivo)
+ */
+
+/**
+ * @swagger
+ * /patients:
+ *   post:
+ *     summary: Crear un nuevo paciente
+ *     tags: [Patients]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *            $ref: '#/components/schemas/Patient'
+ *    responses:
+ *      201:
+ *        description: Paciente creado exitosamente
+ *      500:
+ *        description: Error interno del servidor
+ */
 patientRouter.post('/patients', async (req, res) => {
   const patient = new Patient(req.body);
   try {
@@ -14,6 +63,37 @@ patientRouter.post('/patients', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /patients:
+ *   get:
+ *     summary: Obtener pacientes por nombre o número de identificación
+ *     tags: [Patients]
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: Nombre del paciente a buscar
+ *       - in: query
+ *         name: identificationNumber
+ *         schema:
+ *           type: string
+ *         description: Número de identificación del paciente a buscar
+ *     responses:
+ *       200:
+ *         description: Lista de pacientes encontrados
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Patient'
+ *       404:
+ *         description: No se ha encontrado ningún paciente con los criterios de búsqueda proporcionados
+ *       500:
+ *         description: Error interno del servidor
+ */
 patientRouter.get('/patients', async (req, res) => {
     let filter: PatientFilter = {};
 
@@ -33,6 +113,32 @@ patientRouter.get('/patients', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /patients/{id}:
+ *  get:
+ *    summary: Obtener un paciente por ID
+ *    tags: [Patients]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: string
+ *          description: ID de mongodb del paciente a obtener
+ *    responses:
+ *      200:
+ *        description: Paciente encontrado con exito
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              $ref: '#/components/schemas/Patient'
+ *      404:
+ *        description: El paciente no existe para el ID proporcionado
+ *     500:
+ *        description: Error interno del servidor
+ */
 patientRouter.get('/patients/:id', async (req, res) => {
   try {
     const patient = await Patient.findById(req.params.id);
@@ -45,6 +151,7 @@ patientRouter.get('/patients/:id', async (req, res) => {
     res.status(500).send({ error: 'Error al obtener el paciente'})
   };
 });
+
 
  patientRouter.patch('/patients', async (req, res) => {
    if (!req.body) {

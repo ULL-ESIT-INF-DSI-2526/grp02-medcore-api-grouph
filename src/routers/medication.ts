@@ -7,8 +7,9 @@ export const medicationRouter = express.Router();
 
 /**
  * POST de Medication
- * Se guarda un medicamento
+ * Se crea un nuevo medicamento
  */
+
 medicationRouter.post("/medication", async (req, res) => {
   const medication = new Medication(req.body);
 

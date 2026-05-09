@@ -1,6 +1,9 @@
 import { Document, Schema, model } from 'mongoose';
 import { Dose } from '../interfaces/Dose.js';
 
+/**
+ * Interfaz de Medication para el Schema de MongoDB
+ */
 export interface MedicationDocumentInterface extends Document {
   comercialName: string,
   DCIName: string,
@@ -15,6 +18,9 @@ export interface MedicationDocumentInterface extends Document {
   contraindications: string[]
 }
 
+/**
+ * Schema de Medication
+ */
 const MedicationSchema = new Schema<MedicationDocumentInterface>({
   comercialName: {
     type: String,

@@ -55,17 +55,7 @@ const firstMed = {
   contraindications: ["No usar si ha tomado alcohol", "No usar si es un bebé"]
 }
 
-
-
-beforeEach(async () => {
-  await Record.deleteMany({});
-  await Patient.deleteMany({});
-  await Staff.deleteMany({});
-  await Medication.deleteMany({});
-  await new Patient(firstPatient).save();
-  await new Staff(firstStaff).save();
-  await new Medication(firstMed).save();
-
+async function createRecord() {
   const pacient_ = (await Patient.findOne({identificationNumber: firstPatient.identificationNumber}));
   const doctor_ = (await Staff.findOne({medicalNumber: firstStaff.medicalNumber}));
   
@@ -87,7 +77,21 @@ beforeEach(async () => {
     totalPrice: 61.5,
   };
 
-  await new Record(firstRecord).save(); 
+  await new Record(firstRecord).save();
+}
+
+
+
+beforeEach(async () => {
+  await Record.deleteMany({});
+  await Patient.deleteMany({});
+  await Staff.deleteMany({});
+  await Medication.deleteMany({});
+  await new Patient(firstPatient).save();
+  await new Staff(firstStaff).save();
+  await new Medication(firstMed).save();
+
+  createRecord();
 });
 
 describe("GET /records", () => {
@@ -161,6 +165,161 @@ describe('POST /records', () => {
         status: 'abierto'
       }
     ).expect(201)
+  
+    expect(record._body.type).toEqual('Ambulatoria');
+    expect(record._body.reason).toEqual('Dolores insoportables');
+    expect(record._body.diagnostic).toEqual('Tiene Hernia');
+    expect(record._body.status).toEqual('abierto');
+    expect(record._body.medications.length).toEqual(2);
   })
 
+  test('should return 404 if patient does not exist', async () => {
+    await request(app).post('/records').send(
+      {
+        identificationNumber: "123456789A",
+        medicalNumber: firstStaff.medicalNumber,
+        type: 'Ambulatoria',
+        startDate: new Date(),
+        reason: 'Dolores insoportables',
+        diagnostic: 'Tiene Hernia',
+        medications: [],
+        status: 'abierto'
+      }
+    ).expect(404)
+  })
+
+  test('should return 404 if staff does not exist', async () => {
+    await request(app).post('/records').send(
+      {
+        identificationNumber: firstPatient.identificationNumber,
+        medicalNumber: 123456789,
+        type: 'Ambulatoria',
+        startDate: new Date(),
+        reason: 'Dolores insoportables',
+        diagnostic: 'Tiene Hernia',
+        medications: [],
+        status: 'abierto'
+      }
+    ).expect(404)
+  })
+
+  test('should return 201 if record is created without medications', async () => {
+    const record = await request(app).post('/records').send(
+      {
+        identificationNumber: firstPatient.identificationNumber,
+        medicalNumber: firstStaff.medicalNumber,
+        type: 'Ambulatoria',
+        startDate: new Date(),
+        reason: 'Dolores insoportables',
+        diagnostic: 'Tiene Hernia',
+        medications: [],
+        status: 'abierto'
+      }
+    ).expect(201)
+
+    expect(record._body.type).toEqual('Ambulatoria');
+    expect(record._body.reason).toEqual('Dolores insoportables');
+    expect(record._body.diagnostic).toEqual('Tiene Hernia');
+    expect(record._body.status).toEqual('abierto');
+    expect(record._body.medications.length).toEqual(0);
+  })
+
+  test('should return 404 if medication does not exist', async () => {
+    const noPrescription = {
+      medicationId: new ObjectId(),
+      dose: {quantity: 50, unit: "ml"},
+      posology: 'Cada 8 horitas'
+    }
+
+    await request(app).post('/records').send(
+      {
+        identificationNumber: firstPatient.identificationNumber,
+        medicalNumber: firstStaff.medicalNumber,
+        type: 'Ambulatoria',
+        startDate: new Date(),
+        reason: 'Dolores insoportables',
+        diagnostic: 'Tiene Hernia',
+        medications: [noPrescription],
+        status: 'abierto'
+      }
+    ).expect(404)
+  })
+
+  test('should return 400 if medication dose unit is incorrect', async () => {
+    const firstMedication = await Medication.findOne({comercialName: "Epinefrina"})
+    if (!firstMedication) {
+      throw new Error('Medication not found');
+    }
+    const noPrescription = {
+      medicationId: firstMedication._id,
+      dose: {quantity: -50, unit: "mg"},
+      posology: 'Cada 8 horitas'
+    }
+
+    await request(app).post('/records').send(
+      {
+        identificationNumber: firstPatient.identificationNumber,
+        medicalNumber: firstStaff.medicalNumber,
+        type: 'Ambulatoria',
+        startDate: new Date(),
+        reason: 'Dolores insoportables',
+        diagnostic: 'Tiene Hernia',
+        medications: [noPrescription],
+        status: 'abierto'
+      }
+    ).expect(400)
+  })
+})
+
+describe('PATCH /records', async () => {
+  test('Should update the record succesfully', async () => {
+    createRecord()
+    const records = await request(app)
+      .get('/records?startDate="2020-01-01"&endDate="2030-01-01"')
+      .expect(200)
+    
+    const record = await request(app)
+        .patch(`/records/${records._body[0]._id}`)
+        .send({
+          type: 'Ambulatoria',
+          reason: 'Dolores insoportables',
+          diagnostic: 'Tiene Hernia',
+          medications: [],
+          status: 'abierto'
+        }).expect(200);
+  })
+
+  test('Should not update the record', async () => {
+    createRecord()
+    const records = await request(app)
+      .get('/records?startDate="2020-01-01"&endDate="2030-01-01"')
+      .expect(200)
+
+    const record = await request(app)
+        .patch(`/records/${records._body[0]._id}`)
+        .send({
+          type: 'Ambulatoria',
+          startDate: new Date(),
+          reason: 'Dolores insoportables',
+          diagnostic: 'Tiene Hernia',
+          medications: [],
+          status: 'abierto'
+        }).expect(400);
+  })
+})
+
+describe('DELETE /records', async () => {
+  test('Should delete the record succesfully', async () => {
+    createRecord()
+    const record = await request(app).get('/records/patient?identificationNumber=12345679A').expect(200)
+    await request(app)
+      .delete(`/records/${record._body[0]._id}`)
+      .expect(204)
+  })
+  
+  test('Should return 404 if record does not exist', async () => {
+    await request(app)
+      .delete(`/records/123456789abcde1234567890`)
+      .expect(404)
+  })
 })

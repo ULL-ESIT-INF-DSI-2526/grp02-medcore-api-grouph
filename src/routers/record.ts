@@ -41,8 +41,9 @@ async function getIdFromMedicalNumber(medicalNumber: number): Promise<string> {
 
 async function manageMedicationPrescription(
   medicationPrescription: MedicationPrescription,
-  startDate: Date
-): Promise<boolean> {
+  startDate: Date,
+  addition: boolean = false
+): Promise<void> {
   const medicationId = medicationPrescription.medicationId.toString();
   const dose = medicationPrescription.dose.quantity;
 
@@ -64,18 +65,22 @@ async function manageMedicationPrescription(
     );
   }
 
-  const new_stock = medication.stock - dose;
+  let new_stock :number = 0 
+  if (!addition) {
+    new_stock = medication.stock - dose;
+  } else {
+    new_stock = medication.stock + dose
+  }
   const updated = await Medication.findByIdAndUpdate(medicationId,
     { $inc:{ stock: new_stock } }, 
     { new: true, runValidators: true }
-  );
+  )
 
   if (!updated) {
     throw new Error(
       `No se ha podido actualizar el stock del medicamento ${medication.comercialName}. Es posible que no haya suficiente stock disponible.`
     );
   }
-  return true;
 }
 
 async function computeTotalPrice(prescriptions: MedicationPrescription[]): Promise<number> {
@@ -92,37 +97,48 @@ async function computeTotalPrice(prescriptions: MedicationPrescription[]): Promi
 
 
 recordRouter.post('/records', async (req, res) => {
+  let doctorId  
+  let pacientId
+
+  if (!req.body.identificationNumber || !req.body.medicalNumber) 
+    return res.status(400).send({ error: "Faltan campos obligatorios en la query" })
+  
+  const dni = req.body.identificationNumber
+  const medicalNumber = req.body.medicalNumber
+  const medicationPrescriptions: MedicationPrescription[] = req.body.medications ?? []
+ 
   try {
-    const dni = req.body.identificationNumber
-    const medicalNumber = req.body.medicalNumber
+    doctorId  = await getIdFromMedicalNumber(medicalNumber)
+    pacientId = await getIdFromDni(dni)
+  } catch (error) {
+    return res.status(404).send({ error: error })
+  }
 
-    const doctorId = await getIdFromMedicalNumber(medicalNumber)
-    const pacientId = await getIdFromDni(dni)
-
-    const medicationPrescriptions: MedicationPrescription[] = req.body.medications ?? []
-
+  try {
     for (const medicationPrescription of medicationPrescriptions) {
       await manageMedicationPrescription(
         medicationPrescription,
         new Date(req.body.startDate)
       )
-    }
-
-    const totalPrice = await computeTotalPrice(medicationPrescriptions)
-
+    }  
+  } catch (error) {
+    res.status(404).send({ error: error })
+  } 
+  
+  const totalPrice = await computeTotalPrice(medicationPrescriptions)
+  try {
     const record = new Record({
       ...req.body,
       pacientId,
       doctorId,
       totalPrice
     })
-
+  
     await record.save()
-
     return res.status(201).send(record)
   } catch (error) {
     return res.status(400).send({
-      error: error instanceof Error ? error.message : error
+      error: error 
     })
   }
 })
@@ -166,35 +182,6 @@ recordRouter.get("/records/:id", async (req, res) => {
     res.status(500).send(error);
   }
 })
-
-// recordRouter.get("/records/patient", async (req, res) => {
-//   console.log(req.query.identificationNumber)
-//   console.error(req.query.identificationNumber)
-//   if (!req.query.identificationNumber) {
-//     return res.status(400).send("No se ha indicado el id del paciente")
-//   } else {
-//     try {
-//       const patient: PatientDocumentInterface | null = await Patient.findOne({ identificationNumber: req.query.identificationNumber as string });
-//       console.log(patient)
-//       console.error(patient)
-//       if (!patient) {
-//         return res.status(404).send("No se ha encontrado paciente con ese ID");
-//       } else {
-//         const records = await Record.find({ pacientId: patient._id })
-//                                     .sort({ startDate: 1 });  // Registros más antiguos primero
-//         if(records.length > 0) {
-//           return res.status(200).send(records);
-//         } else {
-//           return res.status(404).send("No se han encontrado registros de ese paciente");
-//         }
-//       }
-      
-//     } catch (error) {
-//       console.error(error)
-//       return res.status(500).send(error)
-//     }
-//   }
-// })
 
 recordRouter.get("/records", async (req, res) => {
   const { startDate, endDate, type } = req.query;
@@ -253,6 +240,9 @@ recordRouter.get("/records", async (req, res) => {
 })
 
 recordRouter.delete("/records/:id", async (req, res) => {
+  if (!req.params.id) {
+    res.status(400).send("No se ha pasado la ID del registrto como parametro")
+  } 
   const record :RecordDocumentInterface | null = await Record.findById(req.params.id)
   if (!record) {
     res.status(404).send({ error: "No se ha encontrado ningún registro con esa ID" })
@@ -273,17 +263,16 @@ recordRouter.delete("/records/:id", async (req, res) => {
               res.status(500).send({ error: err })
             })
           }
-
         })
         .catch((err) => {
-          res.status(500).send({ error: err })
+          res.status(404).send({ error: err })
         })
       })
     }
 
     Record.findByIdAndDelete(req.params.id)
     .then((record) => {
-      res.status(200).send(record)
+      res.status(204).send(record)
     })
     .catch((err) => {
       res.status(500).send({ error: err })
@@ -291,3 +280,65 @@ recordRouter.delete("/records/:id", async (req, res) => {
   }
 })
 
+recordRouter.patch("/records/:id", async (req, res) => {
+  if (!req.params.id) {
+    res.status(400).send("No se ha pasado la ID del registrto como parametro")
+  }
+
+  // Campos que permitimos actualizar
+  const allowedUpdates = ["type", "endDate", "reason", "diagnostic", "medications", "status", "totalPrice"];
+  const actualUpdates = Object.keys(req.body);
+  const isValidUpdate = actualUpdates.every((update) => 
+    allowedUpdates.includes(update)
+  )
+
+  if (!isValidUpdate) {
+    res.status(400).send({ error: "Update no permitida" });
+  } else {
+    try {
+      const record = await Record.findById(req.params.id);
+      if (!record) {
+        res.status(404).send("No se ha encontrado ningún registro con ese ID")
+      } else {
+        let totalPrice: number = 0
+        if (req.body.medication) {
+          /// Restauración
+          const medicationPrescriptions: MedicationPrescription[] = record.medications || []
+          for (const prescription of medicationPrescriptions) {
+            await manageMedicationPrescription(
+              prescription,
+              record.startDate,
+              true
+            )
+          }
+          /// Nueva prescripcion
+          const newMedicationPrescriptions: MedicationPrescription[] = req.body.medications || []
+          for (const prescription of newMedicationPrescriptions) {
+            await manageMedicationPrescription(
+              prescription,
+              req.body.startDate || record.startDate,
+              false
+            )
+          }          
+          totalPrice = await computeTotalPrice(newMedicationPrescriptions)
+        } else {
+          totalPrice = await computeTotalPrice(record.medications || [])
+        }
+
+        const updatedRecord = await Record.findByIdAndUpdate(
+          req.params.id,
+          { ...req.body, totalPrice },
+          { new: true, runValidators: true }
+        )
+
+        if (!updatedRecord) {
+          res.status(404).send("No se ha encontrado ningún registro con ese ID")
+        } else {
+          res.status(200).send(updatedRecord)
+        }
+      }
+    } catch (error) {
+      res.status(500).send({ error: error })
+    }
+  }
+})
