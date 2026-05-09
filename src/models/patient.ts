@@ -1,6 +1,7 @@
 import {Document, model, Schema} from 'mongoose';
 import validator from 'validator';
 
+
 export interface PatientDocumentInterface extends Document {
   name: string;
   birthDate: Date;
@@ -64,11 +65,6 @@ const PatientSchema: Schema = new Schema({
       type: Number, 
       required: true, 
       trim: true,
-      // validate(value: number){
-      //   if (validator.isMobilePhone(value.toString(), 'es-ES')) {
-      //     throw new Error('El número de teléfono no es válido');
-      //   }
-      // }
     },
     email: {
       type: String, 

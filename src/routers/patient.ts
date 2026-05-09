@@ -50,6 +50,24 @@ export const patientRouter = express.Router();
  *    responses:
  *      201:
  *        description: Paciente creado exitosamente
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Patient'
+ *        example:
+ *          _id: "60c72b2f9b1e8e5d6c8f9a3b"
+ *          name: "María García"
+ *          birthDate: "1990-05-15T00:00:00.000Z"
+ *          identificationNumber: "23542154A"
+ *          socialSecurityNumber: "123456789"
+ *          gender: "Femenino"
+ *          contactInformation: 
+ *            phone: 123456789
+ *            email: "mariagarcia@gmail.com"
+ *            address: "Calle de la Luna 45"
+ *          knownAllergies: ["Aspirina"]
+ *          bloodType: "A+"
+ *          status: "Activo"
  *      500:
  *        description: Error interno del servidor
  */
@@ -89,6 +107,20 @@ patientRouter.post('/patients', async (req, res) => {
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Patient'
+ *         example:
+ *           _id: "60c72b2f9b1e8e5d6c8f9a3b"
+ *           name: "María García"
+ *           birthDate: "1990-05-15T00:00:00.000Z"
+ *           identificationNumber: "23542154A"
+ *           socialSecurityNumber: "123456789"
+ *           gender: "Femenino"
+ *           contactInformation: 
+ *             phone: 123456789
+ *             email: "mariagarcia@gmail.com"
+ *             address: "Calle de la Luna 45"
+ *           knownAllergies: ["Aspirina"]
+ *           bloodType: "A+"
+ *           status: "Activo"
  *       404:
  *         description: No se ha encontrado ningún paciente con los criterios de búsqueda proporcionados
  *       500:
@@ -134,9 +166,23 @@ patientRouter.get('/patients', async (req, res) => {
  *            schema:
  *              type: object
  *              $ref: '#/components/schemas/Patient'
+ *        example:
+ *          _id: "60c72b2f9b1e8e5d6c8f9a3b"
+ *          name: "María García"
+ *          birthDate: "1990-05-15T00:00:00.000Z"
+ *          identificationNumber: "23542154A"
+ *          socialSecurityNumber: "123456789"
+ *          gender: "Femenino"
+ *          contactInformation: 
+ *            phone: 123456789
+ *            email: "mariagarcia@gmail.com"
+ *            address: "Calle de la Luna 45"
+ *          knownAllergies: ["Aspirina"]
+ *          bloodType: "A+"
+ *          status: "Activo"
  *      404:
  *        description: El paciente no existe para el ID proporcionado
- *     500:
+ *      500:
  *        description: Error interno del servidor
  */
 patientRouter.get('/patients/:id', async (req, res) => {
@@ -152,6 +198,73 @@ patientRouter.get('/patients/:id', async (req, res) => {
   };
 });
 
+  /**
+   * @swagger
+   * /patients:
+   *  patch:
+   *    summary: Actualizar un paciente por número de identificación
+   *    tags: [Patients]
+   *    parameters:
+   *      - in: query
+   *        name: identificationNumber
+   *        required: true
+   *        schema:
+   *          type: string
+   *          description: Número de identificación del paciente a actualizar
+   *    requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            type: object
+   *            properties:
+   *              contactInformation:
+   *                type: object
+   *                properties:
+   *                  phone:
+   *                    type: number
+   *                    description: Nuevo número de teléfono del paciente
+   *                  email:
+   *                    type: string
+   *                    description: Nuevo correo electrónico del paciente
+   *                  address:
+   *                    type: string
+   *                    description: Nueva dirección del paciente
+   *             knownAllergies:
+   *                type: array
+   *                description: Nueva lista de alergias del paciente
+   *            status:
+   *              type: string
+   *              description: Nuevo estado del paciente
+   *    responses:
+   *      200:
+   *        description: Paciente actualizado con éxito
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              $ref: '#/components/schemas/Patient'
+   *        example:
+   *          _id: "60c72b2f9b1e8e5d6c8f9a3b"
+   *          name: "María García"
+   *          birthDate: "1990-05-15T00:00:00.000Z"
+   *          identificationNumber: "23542154A"
+   *          socialSecurityNumber: "123456789"
+   *          gender: "Femenino"
+   *         contactInformation: 
+   *           phone: 123456789
+   *           email: "mariagarcia@gmail.com"
+   *           address: "Calle de la Luna 45"
+   *         knownAllergies: ["Aspirina"]
+   *         bloodType: "A+"
+   *         status: "Activo"
+   *     400:
+   *       description: Datos de actualización no válidos
+   *     404:
+   *       description: Paciente no encontrado
+   *     500:
+   *       description: Error interno del servidor
+   */
 
  patientRouter.patch('/patients', async (req, res) => {
    if (!req.body) {
@@ -188,6 +301,60 @@ patientRouter.get('/patients/:id', async (req, res) => {
   }
  })
 
+/**
+ * @swagger
+ * /patients/{id}:
+ *  patch:
+ *    summary: Actualizar un paciente por ID
+ *    tags: [Patients]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: string
+ *          description: ID de mongodb del paciente a actualizar
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              contactInformation:
+ *                type: object
+ *                properties:
+ *                  phone:
+ *                    type: number
+ *                    description: Nuevo número de teléfono del paciente
+ *                  email:
+ *                    type: string
+ *                    description: Nuevo correo electrónico del paciente
+ *                  address:
+ *                    type: string
+ *                    description: Nueva dirección del paciente
+ *             knownAllergies:
+ *                type: array
+ *                description: Nueva lista de alergias del paciente
+ *            status:
+ *              type: string
+ *              description: Nuevo estado del paciente
+ *   responses:
+ *     200:
+ *       description: Paciente actualizado con éxito
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             $ref: '#/components/schemas/Patient'
+ *     400:
+ *       description: Datos de actualización no válidos
+ *     404:
+ *       description: Paciente no encontrado
+ *     500:
+ *       description: Error interno del servidor
+ */
+
 patientRouter.patch('/patients/:id', async (req, res) => {
   if (!req.params.id) {
     res.status(400).send({ error: 'ID del paciente es requerido' });
@@ -223,6 +390,34 @@ patientRouter.patch('/patients/:id', async (req, res) => {
     }
   });
 
+  /**
+   * @swagger
+   * /patients:
+   *  delete:
+   *    summary: Eliminar un paciente por número de identificación junto a todo su historial medico
+   *    tags: [Patients]
+   *    parameters:
+   *      - in: query
+   *        name: identificationNumber
+   *        required: true
+   *        schema:
+   *          type: string
+   *          description: Número de identificación del paciente a eliminar
+   *    responses:
+   *     200:
+   *        description: Paciente eliminado con éxito
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              $ref: '#/components/schemas/Patient'
+   *     400:
+   *        description: Número de identificación del paciente es requerido
+   *     404:
+   *        description: Paciente no encontrado
+   *     500:
+   *        description: Error interno del servidor
+   */
   patientRouter.delete('/patients/', async (req, res) => {
     if (!req.query.identificationNumber) {
       return res.status(400).send({ error: 'Número de identificación del paciente es requerido' });
@@ -241,6 +436,34 @@ patientRouter.patch('/patients/:id', async (req, res) => {
     } 
   });
 
+  /**
+   * @swagger
+   * /patients/{id}:
+   *  delete:
+   *    summary: Eliminar un paciente por ID de mongodb junto a todo su historial medico
+   *    tags: [Patients]
+   *    parameters:
+   *      - in: path
+   *        name: id
+   *        required: true
+   *        schema:
+   *          type: string
+   *          description: ID de mongodb del paciente a eliminar
+   *    responses:
+   *     200:
+   *        description: Paciente eliminado con éxito
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              $ref: '#/components/schemas/Patient'
+   *     400:
+   *        description: ID del paciente es requerido
+   *     404:
+   *        description: Paciente no encontrado
+   *     500:
+   *        description: Error interno del servidor
+   */
   patientRouter.delete('/patients/:id', async (req, res) => {
     try {
       await Record.deleteMany({ pacientId: req.params.id });

@@ -11,26 +11,26 @@ import swaggerJsDoc from 'swagger-jsdoc';
 export const app = express();
 app.use(express.json());
 
-// const swaggerOptions = {
-//   definition: {
-//     openapi: '3.0.0', 
-//     info: {
-//       title: 'MedCore API',
-//       version: '1.0.0',
-//       description: 'API REST para la gestion del sistema de información del Hospital Universitario de la Costa'
-//     },
-//     servers: [
-//       {
-//         url: 'http://localhost:3000',
-//         description: 'Servidor local',
-//       }
-//     ]
-//   },
-//   apis: ['./src/routers/*.ts'],
-// };
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0', 
+    info: {
+      title: 'MedCore API',
+      version: '1.0.0',
+      description: 'API REST para la gestion del sistema de información del Hospital Universitario de la Costa'
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+        description: 'Servidor local',
+      }
+    ]
+  },
+  apis: ['./dist/routers/*.js'],
+};
 
-// const swaggerDocs = swaggerJsDoc(swaggerOptions);
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 /**
  * Rutas de la API

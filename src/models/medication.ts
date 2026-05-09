@@ -100,4 +100,7 @@ const MedicationSchema = new Schema<MedicationDocumentInterface>({
   }
 })
 
+/**
+ * Medication Model
+ */
 export const Medication = model<MedicationDocumentInterface>('Medication', MedicationSchema);
