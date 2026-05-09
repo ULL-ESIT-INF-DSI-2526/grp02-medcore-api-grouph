@@ -1,3 +1,6 @@
+console.log('app.ts cargándose...')
+console.log('MONGODB_URL:', process.env.MONGODB_URL ? 'definida' : 'NO DEFINIDA')
+
 import express from 'express';
 import './db/mongoose.js';
 import { recordRouter } from './routers/record.js';

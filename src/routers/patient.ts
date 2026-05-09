@@ -11,24 +11,24 @@ export const patientRouter = express.Router();
  *   schemas:
  *     Patient:
  *       type: object
- *       required:
- *         - name
- *         - identificationNumber
- *       properties:
- *         name:
- *           type: string
- *           description: Nombre completo del paciente
- *         identificationNumber:
- *           type: string
- *           description: Número de identificación del paciente (DNI, pasaporte, etc.)
- *         contactInformation:
- *           type: string
- *           description: Información de contacto del paciente (teléfono, correo electrónico, etc.)
- *         knownAllergies:
- *           type: array
- *           items:
+ *         required:
+ *           - name
+ *           - identificationNumber
+ *         properties:
+ *           name:
  *             type: string
- *           description: Lista de alergias conocidas del paciente
+ *             description: Nombre completo del paciente
+ *           identificationNumber:
+ *             type: string
+ *             description: Número de identificación del paciente (DNI, pasaporte, etc.)
+ *           contactInformation:
+ *             type: string
+ *             description: Información de contacto del paciente (teléfono, correo electrónico, etc.)
+ *           knownAllergies:
+ *             type: array
+ *             items:
+ *               type: string
+ *               description: Lista de alergias conocidas del paciente
  *         status:
  *           type: string
  *           enum: [activo, inactivo]
@@ -38,15 +38,15 @@ export const patientRouter = express.Router();
 /**
  * @swagger
  * /patients:
- *   post:
- *     summary: Crear un nuevo paciente
- *     tags: [Patients]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *            $ref: '#/components/schemas/Patient'
+ *  post:
+ *    summary: Crear un nuevo paciente
+ *    tags: [Patients]
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *           $ref: '#/components/schemas/Patient'
  *    responses:
  *      201:
  *        description: Paciente creado exitosamente
@@ -84,47 +84,47 @@ patientRouter.post('/patients', async (req, res) => {
 /**
  * @swagger
  * /patients:
- *   get:
- *     summary: Obtener pacientes por nombre o número de identificación
- *     tags: [Patients]
- *     parameters:
- *       - in: query
- *         name: name
- *         schema:
- *           type: string
- *         description: Nombre del paciente a buscar
- *       - in: query
- *         name: identificationNumber
- *         schema:
- *           type: string
- *         description: Número de identificación del paciente a buscar
- *     responses:
- *       200:
- *         description: Lista de pacientes encontrados
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Patient'
- *         example:
- *           _id: "60c72b2f9b1e8e5d6c8f9a3b"
- *           name: "María García"
- *           birthDate: "1990-05-15T00:00:00.000Z"
- *           identificationNumber: "23542154A"
- *           socialSecurityNumber: "123456789"
- *           gender: "Femenino"
- *           contactInformation: 
- *             phone: 123456789
- *             email: "mariagarcia@gmail.com"
- *             address: "Calle de la Luna 45"
- *           knownAllergies: ["Aspirina"]
- *           bloodType: "A+"
- *           status: "Activo"
- *       404:
- *         description: No se ha encontrado ningún paciente con los criterios de búsqueda proporcionados
- *       500:
- *         description: Error interno del servidor
+ *  get:
+ *    summary: Obtener pacientes por nombre o número de identificación
+ *    tags: [Patients]
+ *    parameters:
+ *      - in: query
+ *        name: name
+ *        schema:
+ *          type: string
+ *        description: Nombre del paciente a buscar
+ *      - in: query
+ *        name: identificationNumber
+ *        schema:
+ *          type: string
+ *        description: Número de identificación del paciente a buscar
+ *    responses:
+ *      200:
+ *        description: Lista de pacientes encontrados
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Patient'
+ *        example:
+ *          _id: "60c72b2f9b1e8e5d6c8f9a3b"
+ *          name: "María García"
+ *          birthDate: "1990-05-15T00:00:00.000Z"
+ *          identificationNumber: "23542154A"
+ *          socialSecurityNumber: "123456789"
+ *          gender: "Femenino"
+ *          contactInformation: 
+ *            phone: 123456789
+ *            email: "mariagarcia@gmail.com"
+ *            address: "Calle de la Luna 45"
+ *          knownAllergies: ["Aspirina"]
+ *          bloodType: "A+"
+ *          status: "Activo"
+ *      404:
+ *        description: No se ha encontrado ningún paciente con los criterios de búsqueda proporcionados
+ *      500:
+ *        description: Error interno del servidor
  */
 patientRouter.get('/patients', async (req, res) => {
     let filter: PatientFilter = {};
@@ -198,74 +198,74 @@ patientRouter.get('/patients/:id', async (req, res) => {
   };
 });
 
-  /**
-   * @swagger
-   * /patients:
-   *  patch:
-   *    summary: Actualizar un paciente por número de identificación
-   *    tags: [Patients]
-   *    parameters:
-   *      - in: query
-   *        name: identificationNumber
-   *        required: true
-   *        schema:
-   *          type: string
-   *          description: Número de identificación del paciente a actualizar
-   *    requestBody:
-   *      required: true
-   *      content:
-   *        application/json:
-   *          schema:
-   *            type: object
-   *            properties:
-   *              contactInformation:
-   *                type: object
-   *                properties:
-   *                  phone:
-   *                    type: number
-   *                    description: Nuevo número de teléfono del paciente
-   *                  email:
-   *                    type: string
-   *                    description: Nuevo correo electrónico del paciente
-   *                  address:
-   *                    type: string
-   *                    description: Nueva dirección del paciente
-   *             knownAllergies:
-   *                type: array
-   *                description: Nueva lista de alergias del paciente
-   *            status:
-   *              type: string
-   *              description: Nuevo estado del paciente
-   *    responses:
-   *      200:
-   *        description: Paciente actualizado con éxito
-   *        content:
-   *          application/json:
-   *            schema:
-   *              type: object
-   *              $ref: '#/components/schemas/Patient'
-   *        example:
-   *          _id: "60c72b2f9b1e8e5d6c8f9a3b"
-   *          name: "María García"
-   *          birthDate: "1990-05-15T00:00:00.000Z"
-   *          identificationNumber: "23542154A"
-   *          socialSecurityNumber: "123456789"
-   *          gender: "Femenino"
-   *         contactInformation: 
-   *           phone: 123456789
-   *           email: "mariagarcia@gmail.com"
-   *           address: "Calle de la Luna 45"
-   *         knownAllergies: ["Aspirina"]
-   *         bloodType: "A+"
-   *         status: "Activo"
-   *     400:
-   *       description: Datos de actualización no válidos
-   *     404:
-   *       description: Paciente no encontrado
-   *     500:
-   *       description: Error interno del servidor
-   */
-
+/**
+ * @swagger
+ * /patients:
+ *  patch:
+ *    summary: Actualizar un paciente por número de identificación
+ *    tags: [Patients]
+ *    parameters:
+ *      - in: query
+ *        name: identificationNumber
+ *        required: true
+ *        schema:
+ *          type: string
+ *          description: Número de identificación del paciente a actualizar
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              contactInformation:
+ *                type: object
+ *                properties:
+ *                  phone:
+ *                    type: number
+ *                    description: Nuevo número de teléfono del paciente
+ *                  email:
+ *                    type: string
+ *                    description: Nuevo correo electrónico del paciente
+ *                  address:
+ *                    type: string
+ *                    description: Nueva dirección del paciente
+ *             knownAllergies:
+ *                type: array
+ *                description: Nueva lista de alergias del paciente
+ *            status:
+ *              type: string
+ *              description: Nuevo estado del paciente
+ *    responses:
+ *      200:
+ *        description: Paciente actualizado con éxito
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              $ref: '#/components/schemas/Patient'
+ *        example:
+ *          _id: "60c72b2f9b1e8e5d6c8f9a3b"
+ *          name: "María García"
+ *          birthDate: "1990-05-15T00:00:00.000Z"
+ *          identificationNumber: "23542154A"
+ *          socialSecurityNumber: "123456789"
+ *          gender: "Femenino"
+ *          contactInformation: 
+ *            phone: 123456789
+ *            email: "mariagarcia@gmail.com"
+ *            address: "Calle de la Luna 45"
+ *          knownAllergies: ["Aspirina"]
+ *          bloodType: "A+"
+ *          status: "Activo"
+ *      400:
+ *        description: Datos de actualización no válidos
+ *      404:
+ *        description: Paciente no encontrado
+ *      500:
+ *        description: Error interno del servidor
+ */
+  
  patientRouter.patch('/patients', async (req, res) => {
    if (!req.body) {
       return res.status(400).send({error: 'Datos de actualización son requeridos'});
