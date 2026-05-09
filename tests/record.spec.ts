@@ -131,6 +131,7 @@ describe("GET /records", () => {
       .expect(200)
 
     await request(app)
+      // @ts-ignore
       .get(`/records/${record._body[0]._id}`)
       .expect(200)
   })
@@ -165,11 +166,15 @@ describe('POST /records', () => {
         status: 'abierto'
       }
     ).expect(201)
-  
+    // @ts-ignore
     expect(record._body.type).toEqual('Ambulatoria');
+    //@ts-ignore
     expect(record._body.reason).toEqual('Dolores insoportables');
+    //@ts-ignore
     expect(record._body.diagnostic).toEqual('Tiene Hernia');
+    //@ts-ignore
     expect(record._body.status).toEqual('abierto');
+    //@ts-ignore
     expect(record._body.medications.length).toEqual(2);
   })
 
@@ -217,15 +222,21 @@ describe('POST /records', () => {
       }
     ).expect(201)
 
+    //@ts-ignore
     expect(record._body.type).toEqual('Ambulatoria');
+    //@ts-ignore
     expect(record._body.reason).toEqual('Dolores insoportables');
+    //@ts-ignore
     expect(record._body.diagnostic).toEqual('Tiene Hernia');
+    //@ts-ignore
     expect(record._body.status).toEqual('abierto');
+    //@ts-ignore
     expect(record._body.medications.length).toEqual(0);
   })
 
   test('should return 404 if medication does not exist', async () => {
     const noPrescription = {
+      //@ts-ignore
       medicationId: new ObjectId(),
       dose: {quantity: 50, unit: "ml"},
       posology: 'Cada 8 horitas'
@@ -279,6 +290,7 @@ describe('PATCH /records', async () => {
       .expect(200)
     
     const record = await request(app)
+        //@ts-ignore
         .patch(`/records/${records._body[0]._id}`)
         .send({
           type: 'Ambulatoria',
@@ -296,6 +308,7 @@ describe('PATCH /records', async () => {
       .expect(200)
 
     const record = await request(app)
+        //@ts-ignore
         .patch(`/records/${records._body[0]._id}`)
         .send({
           type: 'Ambulatoria',
@@ -313,6 +326,7 @@ describe('DELETE /records', async () => {
     createRecord()
     const record = await request(app).get('/records/patient?identificationNumber=12345679A').expect(200)
     await request(app)
+      //@ts-ignore
       .delete(`/records/${record._body[0]._id}`)
       .expect(204)
   })

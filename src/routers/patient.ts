@@ -11,24 +11,39 @@ export const patientRouter = express.Router();
  *   schemas:
  *     Patient:
  *       type: object
- *         required:
- *           - name
- *           - identificationNumber
- *         properties:
- *           name:
+ *       required:
+ *         - name
+ *         - identificationNumber
+ *         - birthDate
+ *         - socialSecurityNumber
+ *         - gender
+ *         - contactInformation
+ *         - knownAllergies
+ *         - status
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Nombre completo del paciente
+ *         identificationNumber:
+ *           type: string
+ *           description: Número de identificación del paciente (DNI, pasaporte, etc.)
+ *         birthDate:
+ *           type: date
+ *           description: Fecha de nacimiento del paciente
+ *         socialSecurityNumber:
+ *           type: string
+ *           description: Número de seguro social del paciente
+ *         gender:
+ *           type: string
+ *           description: género del paciente
+ *         contactInformation:
+ *           type: string
+ *           description: Información de contacto del paciente (teléfono, correo electrónico, etc.)
+ *         knownAllergies:
+ *           type: array
+ *           items:
  *             type: string
- *             description: Nombre completo del paciente
- *           identificationNumber:
- *             type: string
- *             description: Número de identificación del paciente (DNI, pasaporte, etc.)
- *           contactInformation:
- *             type: string
- *             description: Información de contacto del paciente (teléfono, correo electrónico, etc.)
- *           knownAllergies:
- *             type: array
- *             items:
- *               type: string
- *               description: Lista de alergias conocidas del paciente
+ *           description: Lista de alergias conocidas del paciente
  *         status:
  *           type: string
  *           enum: [activo, inactivo]
@@ -38,7 +53,7 @@ export const patientRouter = express.Router();
 /**
  * @swagger
  * /patients:
- *  post:
+ *   post:
  *    summary: Crear un nuevo paciente
  *    tags: [Patients]
  *    requestBody:
@@ -46,7 +61,7 @@ export const patientRouter = express.Router();
  *      content:
  *        application/json:
  *          schema:
- *           $ref: '#/components/schemas/Patient'
+ *            $ref: '#/components/schemas/Patient'
  *    responses:
  *      201:
  *        description: Paciente creado exitosamente
@@ -84,7 +99,7 @@ patientRouter.post('/patients', async (req, res) => {
 /**
  * @swagger
  * /patients:
- *  get:
+ *   get:
  *    summary: Obtener pacientes por nombre o número de identificación
  *    tags: [Patients]
  *    parameters:
@@ -148,7 +163,7 @@ patientRouter.get('/patients', async (req, res) => {
 /**
  * @swagger
  * /patients/{id}:
- *  get:
+ *   get:
  *    summary: Obtener un paciente por ID
  *    tags: [Patients]
  *    parameters:
@@ -201,7 +216,7 @@ patientRouter.get('/patients/:id', async (req, res) => {
 /**
  * @swagger
  * /patients:
- *  patch:
+ *   patch:
  *    summary: Actualizar un paciente por número de identificación
  *    tags: [Patients]
  *    parameters:
@@ -230,12 +245,12 @@ patientRouter.get('/patients/:id', async (req, res) => {
  *                  address:
  *                    type: string
  *                    description: Nueva dirección del paciente
- *             knownAllergies:
+ *              knownAllergies:
  *                type: array
  *                description: Nueva lista de alergias del paciente
- *            status:
- *              type: string
- *              description: Nuevo estado del paciente
+ *              status:
+ *                type: string
+ *                description: Nuevo estado del paciente
  *    responses:
  *      200:
  *        description: Paciente actualizado con éxito
@@ -304,7 +319,7 @@ patientRouter.get('/patients/:id', async (req, res) => {
 /**
  * @swagger
  * /patients/{id}:
- *  patch:
+ *   patch:
  *    summary: Actualizar un paciente por ID
  *    tags: [Patients]
  *    parameters:
@@ -333,12 +348,12 @@ patientRouter.get('/patients/:id', async (req, res) => {
  *                  address:
  *                    type: string
  *                    description: Nueva dirección del paciente
- *             knownAllergies:
+ *              knownAllergies:
  *                type: array
  *                description: Nueva lista de alergias del paciente
- *            status:
- *              type: string
- *              description: Nuevo estado del paciente
+ *              status:
+ *                type: string
+ *                description: Nuevo estado del paciente
  *   responses:
  *     200:
  *       description: Paciente actualizado con éxito
@@ -391,9 +406,9 @@ patientRouter.patch('/patients/:id', async (req, res) => {
   });
 
   /**
-   * @swagger
-   * /patients:
-   *  delete:
+  * @swagger
+  * /patients:
+  *   delete:
    *    summary: Eliminar un paciente por número de identificación junto a todo su historial medico
    *    tags: [Patients]
    *    parameters:
@@ -404,19 +419,19 @@ patientRouter.patch('/patients/:id', async (req, res) => {
    *          type: string
    *          description: Número de identificación del paciente a eliminar
    *    responses:
-   *     200:
+   *      200:
    *        description: Paciente eliminado con éxito
    *        content:
    *          application/json:
    *            schema:
    *              type: object
    *              $ref: '#/components/schemas/Patient'
-   *     400:
-   *        description: Número de identificación del paciente es requerido
-   *     404:
-   *        description: Paciente no encontrado
-   *     500:
-   *        description: Error interno del servidor
+ *      400:
+ *        description: Número de identificación del paciente es requerido
+ *      404:
+ *        description: Paciente no encontrado
+ *      500:
+ *        description: Error interno del servidor
    */
   patientRouter.delete('/patients/', async (req, res) => {
     if (!req.query.identificationNumber) {
@@ -439,7 +454,7 @@ patientRouter.patch('/patients/:id', async (req, res) => {
   /**
    * @swagger
    * /patients/{id}:
-   *  delete:
+   *   delete:
    *    summary: Eliminar un paciente por ID de mongodb junto a todo su historial medico
    *    tags: [Patients]
    *    parameters:
@@ -450,19 +465,19 @@ patientRouter.patch('/patients/:id', async (req, res) => {
    *          type: string
    *          description: ID de mongodb del paciente a eliminar
    *    responses:
-   *     200:
+   *      200:
    *        description: Paciente eliminado con éxito
    *        content:
    *          application/json:
    *            schema:
    *              type: object
    *              $ref: '#/components/schemas/Patient'
-   *     400:
-   *        description: ID del paciente es requerido
-   *     404:
-   *        description: Paciente no encontrado
-   *     500:
-   *        description: Error interno del servidor
+ *      400:
+ *        description: ID del paciente es requerido
+ *      404:
+ *        description: Paciente no encontrado
+ *      500:
+ *        description: Error interno del servidor
    */
   patientRouter.delete('/patients/:id', async (req, res) => {
     try {

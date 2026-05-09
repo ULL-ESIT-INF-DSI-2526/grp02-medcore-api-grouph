@@ -6,10 +6,94 @@ import { Record } from "../models/record.js";
 export const medicationRouter = express.Router();
 
 /**
- * POST de Medication
- * Se crea un nuevo medicamento
+ * @swagger
+ * components:
+ *   schemas:
+ *     Medication:
+ *       type: object
+ *       required:
+ *         - comercialName
+ *         - DCIName
+ *         - nationalCode
+ *         - pharmaceuticalForm
+ *         - dose
+ *         - administrationRoute
+ *         - stock
+ *         - price
+ *         - prescription
+ *         - expireDate
+ *         - contraindications
+ *       properties:
+ *         comercialName:
+ *           type: string
+ *           description: Nombre comercial del medicamento
+ *         DCIName:
+ *           type: string
+ *           description: Denominación Común Internacional del medicamento
+ *         nationalCode:
+ *           type: string
+ *           description: Código nacional del medicamento
+ *         pharmaceuticalForm:
+ *           type: string
+ *           description: Forma farmacéutica del medicamento (Comprimido, Cápsula, Solución Oral, etc.)
+ *         dose:
+ *           type: object
+ *           properties:
+ *             quantity:
+ *               type: number
+ *               description: Cantidad de la dosis
+ *             unit:
+ *               type: string
+ *               description: Unidad de la dosis (mg, ml, etc.)
+ *         administrationRoute:
+ *           type: string
+ *           description: Vía de administración del medicamento (Oral, Intravenosa, etc.)
+ *         stock:
+ *           type: number
+ *           description: Cantidad de unidades disponibles en stock
+ *         price:
+ *           type: number
+ *           description: Precio del medicamento
+ *         prescription:
+ *           type: boolean
+ *           description: Indica si el medicamento requiere receta médica
+ *         expireDate:
+ *           type: date
+ *           description: Fecha de caducidad del medicamento
+ *         contraindications:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Lista de contraindicaciones del medicamento
  */
 
+/**
+ * @swagger
+ * /patients:
+ *   post:
+ *     summary: Crea un nuevo paciente
+ *     tags: [Patients]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Patient'
+ *     responses:
+ *       201:
+ *         description: Paciente creado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Patient'
+ *         example:
+ *           _id: 60c73b9f1d2c12a34567890
+ * 
+ *       400:
+ *         description: Error en la solicitud
+ *       500:
+ *         description: Error del servidor
+ */
 medicationRouter.post("/medication", async (req, res) => {
   const medication = new Medication(req.body);
 
@@ -21,10 +105,7 @@ medicationRouter.post("/medication", async (req, res) => {
   }
 });
 
-/**
- * GET por ID de Medication (params)
- * Se devuelve un solo medicamento
- */
+
 medicationRouter.get("/medication/:id", async (req, res) => {
   try {
     const medication = await Medication.findById(req.params.id);
