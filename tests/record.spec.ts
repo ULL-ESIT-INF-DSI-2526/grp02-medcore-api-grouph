@@ -91,7 +91,7 @@ beforeEach(async () => {
   await new Staff(firstStaff).save();
   await new Medication(firstMed).save();
 
-  createRecord();
+  await createRecord();
 });
 
 describe("GET /records", () => {
@@ -284,7 +284,7 @@ describe('POST /records', () => {
 
 describe('PATCH /records', async () => {
   test('Should update the record succesfully', async () => {
-    createRecord()
+    await createRecord()
     const records = await request(app)
       .get('/records?startDate="2020-01-01"&endDate="2030-01-01"')
       .expect(200)
@@ -302,7 +302,7 @@ describe('PATCH /records', async () => {
   })
 
   test('Should not update the record', async () => {
-    createRecord()
+    await createRecord()
     const records = await request(app)
       .get('/records?startDate="2020-01-01"&endDate="2030-01-01"')
       .expect(200)
@@ -323,7 +323,7 @@ describe('PATCH /records', async () => {
 
 describe('DELETE /records', async () => {
   test('Should delete the record succesfully', async () => {
-    createRecord()
+    await createRecord()
     const record = await request(app).get('/records/patient?identificationNumber=12345679A').expect(200)
     await request(app)
       //@ts-ignore
