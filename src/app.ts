@@ -21,8 +21,11 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: process.env.SWAGGER_SERVER || 'http://localhost:3000'
+        url: process.env.SWAGGER_SERVER
       },
+      {
+        url: 'http://localhost:3000'
+      }
     ],
   },
   apis: ['./src/routers/*.ts'],
