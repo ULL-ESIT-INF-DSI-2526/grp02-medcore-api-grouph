@@ -69,26 +69,37 @@ export const medicationRouter = express.Router();
 
 /**
  * @swagger
- * /patients:
+ * /medication:
  *   post:
- *     summary: Crea un nuevo paciente
- *     tags: [Patients]
+ *     summary: Crea un nuevo medicamento
+ *     tags: [Medication]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Patient'
+ *             $ref: '#/components/schemas/Medication'
  *     responses:
  *       201:
- *         description: Paciente creado exitosamente
+ *         description: Medicamento creado exitosamente
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Patient'
+ *               $ref: '#/components/schemas/Medication'
  *         example:
- *           _id: 60c73b9f1d2c12a34567890
- * 
+ *           comercialName: "Paracetamol"
+ *           DCIName: "Paracetamol"
+ *           nationalCode: "123456"
+ *           pharmaceuticalForm: "Comprimido"
+ *           dose:
+ *             quantity: 500
+ *             unit: "mg"
+ *           administrationRoute: "Oral"
+ *           stock: 100
+ *           price: 5.99
+ *           prescription: false
+ *           expireDate: "2025-12-31"
+ *           contraindications: ["Hipersensibilidad al paracetamol", "Insuficiencia hepática grave"]
  *       400:
  *         description: Error en la solicitud
  *       500:
@@ -105,7 +116,31 @@ medicationRouter.post("/medication", async (req, res) => {
   }
 });
 
-
+/**
+ * @swagger
+ * /medication/{id}:
+ *   get:
+ *     summary: Obtiene un medicamento por su ID
+ *     tags: [Medication]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID del medicamento a obtener
+ *     responses:
+ *       200:
+ *         description: Medicamento encontrado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Medication'
+ *       404:
+ *         description: No se ha encontrado medicación con esa ID
+ *       500:
+ *         description: Error del servidor
+ */
 medicationRouter.get("/medication/:id", async (req, res) => {
   try {
     const medication = await Medication.findById(req.params.id);
